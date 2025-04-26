@@ -130,12 +130,92 @@ try {
         const showStep=(stepNumber)=>{console.log(`Attempting show step: ${stepNumber}. Food: ${formData.foodNeeded}`);if(stepNumber<1||stepNumber>TOTAL_STEPS)return;if(formData.foodNeeded==='no'&&foodSteps.includes(stepNumber)){let nextStepNum=stepNumber;while(foodSteps.includes(nextStepNum)){nextStepNum++;}stepNumber=nextStepNum;if(stepNumber>TOTAL_STEPS)stepNumber=TOTAL_STEPS;console.log(`Skipped food, -> step: ${stepNumber}`);}steps.forEach((step)=>step.classList.remove('active-step'));const targetStepElement=steps.find(step=>parseInt(step.dataset.step,10)===stepNumber);if(targetStepElement){targetStepElement.classList.add('active-step');currentStep=stepNumber;const firstInput=targetStepElement.querySelector('input:not([type="radio"]):not([type="file"]):not([type="checkbox"]), select, textarea');if(firstInput&&firstInput.id!=='eventStartDateTime')setTimeout(()=>{try{firstInput.focus();}catch(e){}},50);else{const firstRadio=targetStepElement.querySelector('input[type="radio"]');if(firstRadio)setTimeout(()=>{try{firstRadio.focus();}catch(e){}},50);}console.log(`Showing Step: ${currentStep}`);}else{console.error(`Step element ${stepNumber} not found.`);showStep(1);}};
         const collectStepData=(stepNumToCollect)=>{console.log(`Collecting step ${stepNumToCollect}`);try{switch(stepNumToCollect){case 1:formData.firstName=document.getElementById('firstName')?.value.trim()??'';formData.lastName=document.getElementById('lastName')?.value.trim()??'';const ageInput=document.getElementById('age');formData.age=ageInput?.value?parseInt(ageInput.value,10):null;break;case 2:formData.projectName=document.getElementById('projectName')?.value.trim()??'';break;case 3:formData.eventDuration=eventDurationSelect?.value??'';formData.customDuration=(formData.eventDuration==='Other')?customDurationInput?.value.trim()??'':'';console.log(`Collected step 3: StartDateTime=${formData.eventStartDateTime}, Duration=${formData.eventDuration}, Custom=${formData.customDuration}`);break;case 4:formData.city=cityInput?.value.trim()??'';formData.country=countryInput?.value.trim()??'';break;case 5:formData.eventType=eventTypeSelect?.value??'';formData.otherEventType=(formData.eventType==='Other')?otherEventTypeInput?.value.trim()??'':'';break;case 6:formData.eventStyle=eventStyleSelect?.value??'';formData.otherEventStyle=(formData.eventStyle==='Other')?otherEventStyleInput?.value.trim()??'':'';break;case 7:const np=document.getElementById('numPeople');formData.numPeople=np?.value?parseInt(np.value,10):null;break;case 8:const sr=form.querySelector('input[name="foodNeeded"]:checked');formData.foodNeeded=sr?sr.value:null;if(formData.foodNeeded==='no'){formData.foodStyle='';formData.otherFoodStyle='';formData.foodBudgetPerPerson=null;if(foodStyleSelect)foodStyleSelect.value='';if(otherFoodStyleInput)otherFoodStyleInput.value='';const foodBudgetInput=document.getElementById('foodBudgetPerPerson');if(foodBudgetInput)foodBudgetInput.value='';handleOtherOption(foodStyleSelect,otherFoodStyleContainer);}break;case 9:if(formData.foodNeeded==='yes'){formData.foodStyle=foodStyleSelect?.value??'';formData.otherFoodStyle=(formData.foodStyle==='Other')?otherFoodStyleInput?.value.trim()??'':'';}break;case 10:if(formData.foodNeeded==='yes'){const fb=document.getElementById('foodBudgetPerPerson');formData.foodBudgetPerPerson=fb?.value?parseFloat(fb.value):null;}break;case 11:const b=document.getElementById('budget');formData.budget=b?.value?parseFloat(b.value):null;break;case 12:formData.inspirationNotes=inspirationNotesInput?.value.trim()??'';formData.inspirationPhotosInfo=selectedInspirationFiles.map(f=>({name:f.name,size:f.size,type:f.type}));break;}}catch(error){console.error(`Error collecting data step ${stepNumToCollect}:`,error);}};
         const handleOtherOption=(selectElement,containerElement)=>{if(selectElement&&containerElement){containerElement.style.display=(selectElement.value==='Other')?'block':'none';const customInput=containerElement.querySelector('input, textarea');if(customInput){customInput.required=(selectElement.value==='Other');}}};
-        const showLocationStatus=(message,type='info',duration=4000)=>{if(!locationStatusArea)return;clearTimeout(statusTimeout);locationStatusArea.textContent=message;locationStatusArea.className=`status-${type}`;locationStatusArea.classList.add('visible');if(duration!==null){statusTimeout=setTimeout(()=>{locationStatusArea.classList.remove('visible');},duration);}};const hideLocationStatus=()=>{if(locationStatusArea){clearTimeout(statusTimeout);locationStatusArea.classList.remove('visible');}};
-        
+        // Updated showLocationStatus to handle duration=0 or null correctly
+        const showLocationStatus=(message,type='info',duration=4000)=>{if(!locationStatusArea)return;clearTimeout(statusTimeout);locationStatusArea.textContent=message;locationStatusArea.className=`status-${type}`;locationStatusArea.classList.add('visible');if(duration!==null&&duration>0){statusTimeout=setTimeout(()=>{locationStatusArea.classList.remove('visible');},duration);}else if(duration===null||duration===0){/* Keep visible indefinitely */}else{statusTimeout=setTimeout(()=>{locationStatusArea.classList.remove('visible');},4000);}};const hideLocationStatus=()=>{if(locationStatusArea){clearTimeout(statusTimeout);locationStatusArea.classList.remove('visible');}};
+
+        // --- Implemented Geolocation ---
+        const handleGetLocation = async () => {
+            console.log("Attempting to get location...");
+            if (!navigator.geolocation) {
+                showLocationStatus("Geolocation is not supported by your browser.", 'error', 5000);
+                return;
+            }
+
+            const cityInput = document.getElementById('city');
+            const countryInput = document.getElementById('country');
+            if (!cityInput || !countryInput) {
+                 console.error("City or Country input not found");
+                 showLocationStatus("Form error: Location fields missing.", 'error', 5000);
+                 return;
+            }
+
+            showLocationStatus("Fetching your location...", 'info', null); // Keep message displayed until result
+
+            try {
+                const position = await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(resolve, reject, {
+                        enableHighAccuracy: false, // Lower accuracy is often faster and sufficient
+                        timeout: 10000, // 10 seconds
+                        maximumAge: 60000 // Allow cached position up to 1 minute old
+                    });
+                });
+
+                const { latitude, longitude } = position.coords;
+                console.log(`Location obtained: Lat ${latitude}, Lon ${longitude}`);
+                showLocationStatus("Location found. Fetching address details...", 'info', null);
+
+                // Use OpenStreetMap Nominatim for reverse geocoding (free, no API key needed)
+                const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}&accept-language=en`);
+
+                if (!response.ok) {
+                    throw new Error(`Nominatim API request failed: ${response.statusText} (Status: ${response.status})`);
+                }
+
+                const data = await response.json();
+                console.log("Nominatim response:", data);
+
+                if (data && data.address) {
+                    // Prioritize city/town/village, fallback to county if needed
+                    const city = data.address.city || data.address.town || data.address.village || data.address.county || '';
+                    const country = data.address.country || '';
+
+                    if (city) cityInput.value = city;
+                    if (country) countryInput.value = country;
+
+                    // Manually trigger input event if value changed, useful for validation/state updates
+                    if (city) cityInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    if (country) countryInput.dispatchEvent(new Event('input', { bubbles: true }));
+
+
+                    if (city || country) {
+                         showLocationStatus(`Location set: ${city ? city + (country ? ', ' : '') : ''}${country}`, 'success', 5000);
+                    } else {
+                         showLocationStatus("Could not determine city/country from location.", 'warn', 5000);
+                    }
+                } else {
+                    showLocationStatus("Could not parse address details from location.", 'warn', 5000);
+                }
+
+            } catch (error) {
+                console.error("Geolocation or Reverse Geocoding Error:", error);
+                let message = "Could not get location.";
+                if (error.code === 1) { // PERMISSION_DENIED
+                    message = "Location permission denied. Please enable it in your browser settings.";
+                } else if (error.code === 2) { // POSITION_UNAVAILABLE
+                    message = "Location information is unavailable.";
+                } else if (error.code === 3) { // TIMEOUT
+                    message = "Getting location timed out.";
+                } else if (error.message && error.message.includes('Nominatim')) {
+                    message = "Could not fetch address details. Please try again later or enter manually.";
+                }
+                showLocationStatus(message, 'error', 8000); // Show error longer
+            }
+        };
+        // --- End Geolocation ---
+
         // ========================================================================
-        // TODO: IMPLEMENT MISSING HELPER FUNCTIONS HERE
+        // TODO: IMPLEMENT REMAINING MISSING HELPER FUNCTIONS HERE
         // ========================================================================
-        const handleGetLocation=async()=>{ console.warn("handleGetLocation function not implemented."); showLocationStatus("Location feature not yet available.", "error"); /* ... Actual implementation needed ... */};
         const renderImagePreviews=()=>{ console.warn("renderImagePreviews function not implemented."); /* ... Actual implementation needed ... */};
         const handleRemoveImage=(event)=>{ console.warn("handleRemoveImage function not implemented."); /* ... Actual implementation needed ... */};
         const handleFileSelect=(event)=>{ console.warn("handleFileSelect function not implemented."); /* ... Actual implementation needed ... */};
@@ -239,6 +319,42 @@ try {
                 }
             });
         }
+
+        // --- Enter Key Navigation ---
+        form.addEventListener('keydown', (event) => {
+            // Check if Enter key was pressed and the target is an input/select (but not a textarea or button)
+            const targetTag = event.target.tagName.toUpperCase();
+            const targetType = event.target.type ? event.target.type.toUpperCase() : '';
+
+            if (event.key === 'Enter' &&
+                (targetTag === 'INPUT' && targetType !== 'BUTTON' && targetType !== 'SUBMIT' && targetType !== 'RESET') ||
+                 targetTag === 'SELECT')
+            {
+                event.preventDefault(); // Prevent default form submission or other Enter behavior
+
+                const currentStepElement = event.target.closest('.form-step');
+                if (currentStepElement) {
+                    const nextButton = currentStepElement.querySelector('.next-btn');
+                    if (nextButton) {
+                        console.log("Enter pressed in input/select, triggering next button click.");
+                        nextButton.click(); // Trigger click to use existing validation/navigation
+                    } else {
+                        // If no next button (e.g., last step), try submitting
+                        const submitButton = currentStepElement.querySelector('button[type="submit"]');
+                        if (submitButton) {
+                            console.log("Enter pressed in input/select on last step, triggering submit.");
+                            // Potentially validate before submitting if needed, though submit usually handles it
+                            submitButton.click();
+                        }
+                    }
+                }
+            } else if (event.key === 'Enter' && targetTag === 'TEXTAREA') {
+                // Allow default Enter behavior (new line) in textareas
+                console.log("Enter pressed in textarea, allowing default.");
+            }
+        });
+        // --- End Enter Key Navigation ---
+
 
         // Form submission
         form.addEventListener('submit', async (e) => {
