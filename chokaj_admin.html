@@ -88,11 +88,25 @@
             <!-- New Content Section for Others -->
             <div id="manageOthersContent" class="main-content-section">
                 <h2>Others</h2>
-                <!-- Content for managing 'Others' will go here -->
-                <p>Manage other types of items here.</p>
-                <!-- Example: <button class="add-new-btn" id="addOtherBtn">Add New Other Item</button> -->
-                <!-- Example: <div id="otherListContainer">Loading other items...</div> -->
-                <!-- Example: <div id="addEditOtherFormContainer" class="form-container"> ... form ... </div> -->
+                <button class="add-new-btn" id="addOtherBtn">Add New Other Item</button>
+                <div id="otherListContainer">Loading other items...</div>
+                <div id="addEditOtherFormContainer" class="form-container">
+                     <h2 id="otherFormTitle">Add New Other Item</h2>
+                     <form id="otherForm" class="form-section">
+                         <input type="hidden" id="otherEditId">
+                         <label for="otherName">Item Name:</label> <input type="text" id="otherName" required>
+                         <label for="otherType">Item Type:</label> <input type="text" id="otherType" placeholder="e.g., Photographer, DJ, Florist" required>
+                         <!-- Add other relevant fields specific to 'Others' -->
+                         <label for="otherCity">City:</label> <input type="text" id="otherCity" placeholder="e.g., Los Angeles">
+                         <label for="otherCountry">Country:</label> <input type="text" id="otherCountry" placeholder="e.g., United States">
+                         <label for="otherTags">Tags (comma-separated):</label> <input type="text" id="otherTags" placeholder="e.g., Wedding, Portrait, Event">
+                         <label for="otherNotes">Notes:</label> <textarea id="otherNotes"></textarea>
+                         <label for="otherPhotos">Upload Photos (Replaces existing on Update):</label> <input type="file" id="otherPhotos" name="otherPhotos" multiple accept="image/*">
+                         <div class="image-preview" id="otherPreview"></div>
+                         <button type="submit" id="saveOtherBtn">Save Other Item</button>
+                         <button type="button" id="cancelOtherEditBtn">Cancel</button>
+                     </form>
+                </div>
             </div>
 
             <hr style="margin: 30px 0; border-color: #6a4f3a; border-style: dashed;">
