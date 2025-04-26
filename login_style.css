@@ -1,0 +1,18 @@
+/* --- Styles (Moved from login.html) --- */
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #e0d5c8; margin: 0; padding: 20px; line-height: 1.6; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; background: linear-gradient(-45deg, #4a3f35, #7a5f45, #3b2e26, #6a4f3a); background-size: 400% 400%; animation: gradientBG 12s ease infinite; }
+@keyframes gradientBG { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+.auth-container { width: 100%; max-width: 420px; background-color: rgba(43, 36, 30, 0.9); padding: 30px 40px; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,.5); border: 1px solid rgba(106, 79, 58, 0.5); }
+h1 { color: #f0e5d8; text-align: center; margin-bottom: 30px; font-weight: 500; font-size: 1.8em; text-shadow: 1px 1px 3px rgba(0,0,0,0.4); }
+.tab-buttons { display: flex; margin-bottom: 25px; border-bottom: 1px solid #6a4f3a; }
+.tab-button { flex-grow: 1; padding: 10px 15px; border: none; background: none; color: #b0a095; cursor: pointer; font-size: 1.1em; font-weight: 500; border-bottom: 3px solid transparent; margin-bottom: -1px; transition: color 0.3s ease, border-color 0.3s ease; }
+.tab-button:hover { color: #f0e5d8; }
+.tab-button.active { color: #f0e5d8; border-bottom-color: #b08f5a; }
+.auth-form { display: none; } .auth-form.active { display: block; }
+label { display: block; margin-bottom: 8px; color: #b0a095; font-weight: 500; }
+input[type="email"], input[type="password"] { width: 100%; padding: 10px 12px; margin-bottom: 15px; border: 1px solid #6a4f3a; border-radius: 6px; background-color: #4a3f35; color: #f0e5d8; font-size: 1em; box-sizing: border-box; transition: border-color .3s ease,box-shadow .3s ease; }
+input[type="email"]::placeholder, input[type="password"]::placeholder { color: #9a8f85; }
+input[type="email"]:focus, input[type="password"]:focus { outline: none !important; border-color: #b08f5a !important; box-shadow: 0 0 0 3px rgba(176, 143, 90, 0.3) !important; }
+.auth-form button { display: block; width: 100%; padding: 12px 25px; background-color: #8a6f45; color: #fff; border: none; border-radius: 6px; font-size: 1em; font-weight: 600; cursor: pointer; transition: background-color 0.3s ease; margin-top: 20px; text-shadow: 1px 1px 2px rgba(0,0,0,0.2); }
+.auth-form button:hover { background-color: #a08f65; }
+.auth-form button:disabled { background-color: #4a3f35; cursor: not-allowed; opacity: .7; }
+#authErrorMessage { color: #f87171; background-color: rgba(138, 79, 69, 0.2); border: 1px solid rgba(160, 111, 101, 0.5); padding: 10px; margin-top: 15px; border-radius: 4px; font-size: 0.9em; text-align: center; display: none; }

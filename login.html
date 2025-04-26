@@ -3,30 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sign in or sign up for Chokaj to manage your event plans.">
+    <link rel="icon" href="/favicon.ico"> <!-- TODO: Add your favicon -->
     <title>Chokaj - Sign In / Sign Up</title>
-    <style>
-        /* Styles remain the same */
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #e0d5c8; margin: 0; padding: 20px; line-height: 1.6; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; background: linear-gradient(-45deg, #4a3f35, #7a5f45, #3b2e26, #6a4f3a); background-size: 400% 400%; animation: gradientBG 12s ease infinite; }
-        @keyframes gradientBG { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
-        .auth-container { width: 100%; max-width: 420px; background-color: rgba(43, 36, 30, 0.9); padding: 30px 40px; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,.5); border: 1px solid rgba(106, 79, 58, 0.5); }
-        h1 { color: #f0e5d8; text-align: center; margin-bottom: 30px; font-weight: 500; font-size: 1.8em; text-shadow: 1px 1px 3px rgba(0,0,0,0.4); }
-        .tab-buttons { display: flex; margin-bottom: 25px; border-bottom: 1px solid #6a4f3a; }
-        .tab-button { flex-grow: 1; padding: 10px 15px; border: none; background: none; color: #b0a095; cursor: pointer; font-size: 1.1em; font-weight: 500; border-bottom: 3px solid transparent; margin-bottom: -1px; transition: color 0.3s ease, border-color 0.3s ease; }
-        .tab-button:hover { color: #f0e5d8; }
-        .tab-button.active { color: #f0e5d8; border-bottom-color: #b08f5a; }
-        .auth-form { display: none; } .auth-form.active { display: block; }
-        label { display: block; margin-bottom: 8px; color: #b0a095; font-weight: 500; }
-        input[type="email"], input[type="password"] { width: 100%; padding: 10px 12px; margin-bottom: 15px; border: 1px solid #6a4f3a; border-radius: 6px; background-color: #4a3f35; color: #f0e5d8; font-size: 1em; box-sizing: border-box; transition: border-color .3s ease,box-shadow .3s ease; }
-        input[type="email"]::placeholder, input[type="password"]::placeholder { color: #9a8f85; }
-        input[type="email"]:focus, input[type="password"]:focus { outline: none !important; border-color: #b08f5a !important; box-shadow: 0 0 0 3px rgba(176, 143, 90, 0.3) !important; }
-        .auth-form button { display: block; width: 100%; padding: 12px 25px; background-color: #8a6f45; color: #fff; border: none; border-radius: 6px; font-size: 1em; font-weight: 600; cursor: pointer; transition: background-color 0.3s ease; margin-top: 20px; text-shadow: 1px 1px 2px rgba(0,0,0,0.2); }
-        .auth-form button:hover { background-color: #a08f65; }
-        .auth-form button:disabled { background-color: #4a3f35; cursor: not-allowed; opacity: .7; }
-        #authErrorMessage { color: #f87171; background-color: rgba(138, 79, 69, 0.2); border: 1px solid rgba(160, 111, 101, 0.5); padding: 10px; margin-top: 15px; border-radius: 4px; font-size: 0.9em; text-align: center; display: none; }
-    </style>
+    <link rel="stylesheet" href="login_style.css">
 </head>
 <body>
-    <div class="auth-container">
+    <div class="auth-container" style="visibility: hidden;"> <!-- Initially hidden until auth check -->
         <h1>Chokaj Sign In / Sign Up</h1>
         <div class="tab-buttons">
             <button class="tab-button active" data-tab="signInTab">Sign In</button>
@@ -55,124 +38,13 @@
         <div id="authErrorMessage"></div>
     </div>
 
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
-    <script>
-        // Initialize Firebase
-        const firebaseConfig = {
-          apiKey: "AIzaSyAU3qmsD15JX6iwjloTjCPDd-2SuG6oM8w",
-          authDomain: "chokaj-4dcae.firebaseapp.com",
-          projectId: "chokaj-4dcae",
-          storageBucket: "chokaj-4dcae.firebasestorage.app",
-          messagingSenderId: "516228224797",
-          appId: "1:516228224797:web:6bdf08edb5962aad5633f4",
-          measurementId: "G-9QVCF19J2W"
-        };
-
-        let auth;
-        let db;
-        try {
-            firebase.initializeApp(firebaseConfig);
-            auth = firebase.auth();
-            // Only initialize db if needed on this page
-            // db = firebase.firestore();
-            console.log("Firebase Initialized (App, Auth).");
-        } catch (error) {
-            console.error("Firebase initialization failed:", error);
-            alert("Firebase could not initialize. Auth will not work.");
-        }
-
-        // --- Custom Auth Logic ---
-        document.addEventListener('DOMContentLoaded', () => {
-            if (!auth) {
-                 document.getElementById('authErrorMessage').textContent = 'Authentication service failed to load.';
-                 document.getElementById('authErrorMessage').style.display = 'block';
-                 return;
-            }
-
-            const signInForm = document.getElementById('signInForm');
-            const signUpForm = document.getElementById('signUpForm');
-            const signInEmailInput = document.getElementById('signInEmail');
-            const signInPasswordInput = document.getElementById('signInPassword');
-            const signUpEmailInput = document.getElementById('signUpEmail');
-            const signUpPasswordInput = document.getElementById('signUpPassword');
-            const signUpConfirmPasswordInput = document.getElementById('signUpConfirmPassword');
-            const errorMessageDiv = document.getElementById('authErrorMessage');
-            const tabButtons = document.querySelectorAll('.tab-button');
-            const authForms = document.querySelectorAll('.auth-form');
-            const authContainer = document.querySelector('.auth-container'); // Get container to potentially hide
-
-            // Hide form initially until auth state is known
-            if (authContainer) authContainer.style.visibility = 'hidden';
-
-            // Tab Switching
-            tabButtons.forEach(button => { /* ... unchanged ... */ button.addEventListener('click', () => { tabButtons.forEach(btn => btn.classList.remove('active')); authForms.forEach(form => form.classList.remove('active')); button.classList.add('active'); const targetTabId = button.getAttribute('data-tab'); document.getElementById(targetTabId)?.classList.add('active'); errorMessageDiv.textContent = ''; errorMessageDiv.style.display = 'none'; }); });
-             // Error Display
-             const showAuthError = (message) => { errorMessageDiv.textContent = message; errorMessageDiv.style.display = 'block'; };
-
-            // Handle sign in
-            signInForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const email = signInEmailInput.value;
-                const password = signInPasswordInput.value;
-                const button = signInForm.querySelector('button');
-                errorMessageDiv.style.display = 'none';
-                button.disabled = true; button.textContent = 'Signing In...';
-                console.log('Attempting sign in...');
-                auth.signInWithEmailAndPassword(email, password)
-                    .then((userCredential) => {
-                        console.log('Sign in successful, redirecting to index...');
-                        window.location.replace('index.html'); // Correct redirect
-                    })
-                    .catch((error) => {
-                        console.error('Sign in error:', error);
-                        showAuthError(`Sign in failed: ${error.message}`);
-                        button.disabled = false; button.textContent = 'Sign In';
-                    });
-            });
-
-            // Handle sign up
-            signUpForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const email = signUpEmailInput.value;
-                const password = signUpPasswordInput.value;
-                const confirmPassword = signUpConfirmPasswordInput.value;
-                const button = signUpForm.querySelector('button');
-                errorMessageDiv.style.display = 'none';
-                if (password.length < 6) { showAuthError("Password must be at least 6 characters."); return; }
-                if (password !== confirmPassword) { showAuthError("Passwords do not match."); return; }
-                button.disabled = true; button.textContent = 'Signing Up...';
-                console.log('Attempting sign up...');
-                auth.createUserWithEmailAndPassword(email, password)
-                    .then((userCredential) => {
-                        console.log('Sign up successful, redirecting to index...');
-                        window.location.replace('index.html'); // Correct redirect
-                    })
-                    .catch((error) => {
-                        console.error('Sign up error:', error);
-                        showAuthError(`Sign up failed: ${error.message}`);
-                        button.disabled = false; button.textContent = 'Sign Up';
-                    });
-            });
-
-            // **** ADDED CHECK: Redirect if already logged in ****
-            auth.onAuthStateChanged((user) => {
-                console.log('Auth state changed on login page:', user ? `User ${user.uid} signed in` : 'Signed out');
-                if (user) {
-                    // User is signed in when they load the login page.
-                    console.log('User already signed in, redirecting from login page to index...');
-                    window.location.replace('index.html');
-                } else {
-                    // User is signed out, show the login form.
-                    console.log('User is signed out, showing login form.');
-                     if (authContainer) authContainer.style.visibility = 'visible';
-                }
-            });
-
-        }); // End DOMContentLoaded
-    </script>
+    <!-- Application Script -->
+    <script src="login_script.js" defer></script>
 
 </body>
 </html>
