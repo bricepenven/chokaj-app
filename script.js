@@ -96,7 +96,8 @@ try {
             if (authBtn) {
                 authBtn.addEventListener('click', () => {
                     console.log('Sign In button clicked, redirecting to login...');
-                    window.location.href = window.location.origin + '/login.html';
+                    // Use relative path which works correctly on subdirectories like GitHub Pages
+                    window.location.href = 'login.html';
                 });
             }
 
