@@ -76,11 +76,21 @@ document.addEventListener('DOMContentLoaded', () => {
         firebaseInitialized = false; // Ensure this is false
         alert("Firebase could not initialize. Admin features will not work.");
         // Update loading message now that DOM is ready
-        const loadingMsg = document.getElementById('authLoadingMessage');
-        const loadingMsg = document.getElementById('authLoadingMessage');
+        const loadingMsg = document.getElementById('authLoadingMessage'); // Keep only one declaration
         if (loadingMsg) loadingMsg.textContent = 'Error initializing Firebase. Please refresh.';
         return; // Stop further execution in this listener
     }
+
+    // Explicitly check if firebase object exists before proceeding
+    if (typeof firebase === 'undefined') {
+        console.error("FATAL: Firebase SDK core object not found. Scripts may not have loaded correctly.");
+        firebaseInitialized = false;
+        alert("Core Firebase library failed to load. Admin features unavailable.");
+        const loadingMsg = document.getElementById('authLoadingMessage');
+        if (loadingMsg) loadingMsg.textContent = 'Error: Core Firebase library failed to load.';
+        return; // Stop execution
+    }
+
 
      // Proceed only if Firebase initialized successfully
      if (!firebaseInitialized || !db || !auth || !storage) {

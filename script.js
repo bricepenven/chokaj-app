@@ -35,13 +35,27 @@ try {
              errorDiv.textContent = `Fatal Error: Could not initialize Firebase services. Form cannot function.`;
              document.body.prepend(errorDiv);
              document.body.prepend(errorDiv);
+             document.body.prepend(errorDiv);
              return; // Stop form initialization
         }
+
+        // Explicitly check if firebase object exists before proceeding
+        if (typeof firebase === 'undefined') {
+            console.error("FATAL: Firebase SDK core object not found. Scripts may not have loaded correctly.");
+            firebaseInitialized = false;
+            alert("Core Firebase library failed to load. Please check your connection and refresh.");
+             const errorDiv = document.createElement('div');
+             errorDiv.style.cssText = 'color: #f8d7da; background-color: #721c24; padding: 15px; margin: 20px auto; border: 1px solid #f5c6cb; border-radius: 8px; max-width: 560px; text-align: center; font-weight: bold; position: fixed; top: 0; left: 50%; transform: translateX(-50%); z-index: 2000;';
+             errorDiv.textContent = `Fatal Error: Core Firebase library failed to load. Form cannot function.`;
+             document.body.prepend(errorDiv);
+            return; // Stop execution
+        }
+
 
         // Proceed only if Firebase initialized successfully
         if (!firebaseInitialized) {
              console.error("Firebase did not initialize successfully. Stopping script execution.");
-             // Optionally display another message or rely on the one from the catch block
+             // Rely on the error message shown in the catch block
              return;
         }
 

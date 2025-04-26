@@ -34,11 +34,26 @@ document.addEventListener('DOMContentLoaded', () => {
              errorDiv.style.display = 'block';
          }
          // Hide the form container if auth failed
-         const authContainer = document.querySelector('.auth-container');
-         const authContainer = document.querySelector('.auth-container');
+         const authContainer = document.querySelector('.auth-container'); // Keep only one declaration
          if (authContainer) authContainer.style.visibility = 'hidden';
          return; // Stop execution if Firebase init failed
     }
+
+    // Explicitly check if firebase object exists before proceeding
+    if (typeof firebase === 'undefined') {
+        console.error("FATAL: Firebase SDK core object not found. Scripts may not have loaded correctly.");
+        firebaseInitialized = false;
+        alert("Core Firebase library failed to load. Please check your connection and refresh.");
+        const errorDiv = document.getElementById('authErrorMessage');
+         if (errorDiv) {
+             errorDiv.textContent = 'Core Firebase library failed to load.';
+             errorDiv.style.display = 'block';
+         }
+         const authContainer = document.querySelector('.auth-container');
+         if (authContainer) authContainer.style.visibility = 'hidden';
+        return; // Stop execution
+    }
+
 
     // Proceed only if Firebase initialized successfully
      if (!firebaseInitialized || !auth) { // Check both flag and auth object
