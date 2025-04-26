@@ -21,77 +21,84 @@ try {
     console.log("Firebase Initialized for Main Form (Explicit Config).");
 } catch (error) {
     console.error("Firebase initialization failed:", error);
-    // Display a more prominent error on the page
-    document.addEventListener('DOMContentLoaded', () => { // Ensure body exists
-        const errorDiv = document.createElement('div');
-        errorDiv.style.cssText = 'color: #f8d7da; background-color: #721c24; padding: 15px; margin: 20px auto; border: 1px solid #f5c6cb; border-radius: 8px; max-width: 560px; text-align: center; font-weight: bold; position: fixed; top: 0; left: 50%; transform: translateX(-50%); z-index: 2000;';
-        errorDiv.textContent = `Fatal Error: Could not initialize Firebase services. ${error.message}.`;
-        document.body.prepend(errorDiv);
-        return; // Stop further execution if Firebase isn't available
-    }
-    const authBtn = document.getElementById('authBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const authBtnContainer = document.getElementById('authBtnContainer');
+    // Display a more prominent error on the page - This needs DOM ready
+    // We'll handle this inside the main DOMContentLoaded listener below
+}
 
-    if (!auth) {
-        console.error("Auth service not initialized, hiding buttons.");
-        if(authBtnContainer) authBtnContainer.style.display = 'none';
-        return; // Stop if auth isn't ready
-    }
 
-     // Initial check in case DOM loads after auth state known
-     const initialUser = auth.currentUser;
-     console.log('Initial user state on DOM load:', initialUser ? 'Signed in' : 'Signed out');
-     if (initialUser) {
-          if (authBtn) authBtn.style.display = 'none';
-          if (logoutBtn) logoutBtn.style.display = 'block';
-     } else {
-          if (authBtn) authBtn.style.display = 'block';
-          if (logoutBtn) logoutBtn.style.display = 'none';
-     }
-
-    // Listen for auth state changes
-    auth.onAuthStateChanged((user) => {
-        console.log('Auth state changed:', user ? 'Signed in' : 'Signed out');
-        if (user) {
-            if (authBtn) authBtn.style.display = 'none';
-            if (logoutBtn) logoutBtn.style.display = 'block';
-        } else {
-            if (authBtn) authBtn.style.display = 'block';
-            if (logoutBtn) logoutBtn.style.display = 'none';
-        }
-    });
-
-    // Auth button directs to login page
-    if (authBtn) {
-        authBtn.addEventListener('click', () => {
-            console.log('Sign In button clicked, redirecting to login...');
-            // Use window.location.origin for base URL, works on localhost and deployed
-            window.location.href = window.location.origin + '/login.html';
-        });
-    }
-
-    // Logout button signs user out
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', async () => {
-            console.log('Logout button clicked...');
-            try {
-                await auth.signOut();
-                console.log('Sign out successful');
-                // The onAuthStateChanged listener will handle hiding the logout button
-            } catch (error) {
-                console.error('Error signing out:', error);
-                alert('Error signing out. Please try again.'); // Use alert for critical errors?
-            }
-        });
-    }
-});
-
-// --- Main Form Logic ---
+// --- Main Form Logic (including Auth Button UI) ---
 try {
     document.addEventListener('DOMContentLoaded', () => {
-        // ... Keep ALL the existing main form logic here ...
-        // (Including state, refs, Flatpickr init, core functions, listeners, AI prompt generation)
+
+        // Check if Firebase failed initialization earlier
+        if (!auth || !db || !storage) {
+             console.error("Firebase services not available. Stopping form script.");
+             // Display error now that DOM is ready
+             const errorDiv = document.createElement('div');
+             errorDiv.style.cssText = 'color: #f8d7da; background-color: #721c24; padding: 15px; margin: 20px auto; border: 1px solid #f5c6cb; border-radius: 8px; max-width: 560px; text-align: center; font-weight: bold; position: fixed; top: 0; left: 50%; transform: translateX(-50%); z-index: 2000;';
+             errorDiv.textContent = `Fatal Error: Could not initialize Firebase services. Form cannot function.`;
+             document.body.prepend(errorDiv);
+             return; // Stop form initialization
+        }
+
+        // --- Auth Button UI Logic (Moved inside main DOMContentLoaded) ---
+        const authBtn = document.getElementById('authBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const authBtnContainer = document.getElementById('authBtnContainer');
+
+        if (!auth) { // Redundant check, but safe
+            console.error("Auth service not initialized, hiding buttons.");
+            if(authBtnContainer) authBtnContainer.style.display = 'none';
+        } else {
+             // Initial check for auth state
+             const initialUser = auth.currentUser;
+             console.log('Initial user state on DOM load:', initialUser ? 'Signed in' : 'Signed out');
+             if (initialUser) {
+                  if (authBtn) authBtn.style.display = 'none';
+                  if (logoutBtn) logoutBtn.style.display = 'block';
+             } else {
+                  if (authBtn) authBtn.style.display = 'block';
+                  if (logoutBtn) logoutBtn.style.display = 'none';
+             }
+
+            // Listen for auth state changes
+            auth.onAuthStateChanged((user) => {
+                console.log('Auth state changed:', user ? 'Signed in' : 'Signed out');
+                if (user) {
+                    if (authBtn) authBtn.style.display = 'none';
+                    if (logoutBtn) logoutBtn.style.display = 'block';
+                } else {
+                    if (authBtn) authBtn.style.display = 'block';
+                    if (logoutBtn) logoutBtn.style.display = 'none';
+                }
+            });
+
+            // Auth button directs to login page
+            if (authBtn) {
+                authBtn.addEventListener('click', () => {
+                    console.log('Sign In button clicked, redirecting to login...');
+                    window.location.href = window.location.origin + '/login.html';
+                });
+            }
+
+            // Logout button signs user out
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', async () => {
+                    console.log('Logout button clicked...');
+                    try {
+                        await auth.signOut();
+                        console.log('Sign out successful');
+                    } catch (error) {
+                        console.error('Error signing out:', error);
+                        alert('Error signing out. Please try again.');
+                    }
+                });
+            }
+        }
+        // --- End Auth Button UI Logic ---
+
+
+        // --- Main Form Element Refs and Logic ---
         // ... Make sure the generateAiPrompts function uses the correct date/duration fields ...
         console.log("DOM fully loaded. Initializing Chokaj Form script...");
         const form=document.getElementById('eventForm');const steps=Array.from(form.querySelectorAll('.form-step'));const TOTAL_STEPS=steps.length;const submitButton=document.getElementById('confirmPlanBtn');const getLocationButton=document.getElementById('getLocationBtn');const cityInput=document.getElementById('city');const countryInput=document.getElementById('country');const eventTypeSelect=document.getElementById('eventType');const otherEventTypeContainer=document.getElementById('otherEventTypeContainer');const otherEventTypeInput=document.getElementById('otherEventType');const eventStyleSelect=document.getElementById('eventStyle');const otherEventStyleContainer=document.getElementById('otherEventStyleContainer');const otherEventStyleInput=document.getElementById('otherEventStyle');const foodStyleSelect=document.getElementById('foodStyle');const otherFoodStyleContainer=document.getElementById('otherFoodStyleContainer');const otherFoodStyleInput=document.getElementById('otherFoodStyle');const modalOverlay=document.getElementById('modalOverlay');const modalTitle=document.getElementById('modalTitle');const modalMessage=document.getElementById('modalMessage');const modalConfirmBtn=document.getElementById('modalConfirmBtn');const modalCancelBtn=document.getElementById('modalCancelBtn');const locationStatusArea=document.getElementById('locationStatus');const inspirationPhotosInput=document.getElementById('inspirationPhotos');const inspirationPreview=document.getElementById('inspirationPreview');const inspirationNotesInput=document.getElementById('inspirationNotes');const citySuggestionsContainer=document.getElementById('citySuggestions');const eventDateInput=document.getElementById('eventStartDateTime');const eventDurationSelect=document.getElementById('eventDuration');const customDurationContainer=document.getElementById('customDurationContainer');const customDurationInput=document.getElementById('customDuration');const summaryContentDiv=document.getElementById('summaryContent');const inspirationUploadContainer=document.getElementById('inspirationUploadContainer');

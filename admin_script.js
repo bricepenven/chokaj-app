@@ -70,14 +70,21 @@ try {
     console.error("Firebase initialization failed:", error);
     firebaseInitialized = false; // Ensure this is false
     alert("Firebase could not initialize. Admin features will not work.");
-    // Attempt to update loading message if DOM is ready
-    document.addEventListener('DOMContentLoaded', () => {
+    // We'll handle updating the loading message inside the main DOMContentLoaded listener
+}
+
+// --- DOMContentLoaded Event Listener ---
+document.addEventListener('DOMContentLoaded', () => {
+    // Check if Firebase failed to initialize earlier
+    if (!firebaseInitialized) {
+        console.error("Skipping admin page initialization because Firebase failed.");
+        // Update loading message now that DOM is ready
         const loadingMsg = document.getElementById('authLoadingMessage');
-        if (loadingMsg) loadingMsg.textContent = `Error initializing Firebase: ${error.message}`;
-        return; // Stop initialization
+        if (loadingMsg) loadingMsg.textContent = 'Error initializing Firebase. Please refresh.';
+        return;
     }
 
-    // Get common elements needed early (now safe to assume firebase object exists if initialized)
+    // Get common elements needed early
     const authLoadingMessage = document.getElementById('authLoadingMessage');
     const adminPageContent = document.getElementById('adminPageContent');
     const logoutButton = document.getElementById('logoutButton');

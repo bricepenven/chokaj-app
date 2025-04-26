@@ -20,23 +20,19 @@ try {
 } catch (error) {
     console.error("Firebase initialization failed:", error);
     alert("Firebase could not initialize. Auth will not work.");
-    // Attempt to display error on page if possible
-    document.addEventListener('DOMContentLoaded', () => { // Ensure elements exist
-        const errorDiv = document.getElementById('authErrorMessage');
-        if (errorDiv) {
-            errorDiv.textContent = 'Core authentication service failed to load.';
-            errorDiv.style.display = 'block';
-        }
-        // Hide the form container if auth failed
-        const authContainer = document.querySelector('.auth-container');
-        if (authContainer) authContainer.style.visibility = 'hidden';
-        return; // Stop execution
-    }
-    // Ensure auth is initialized before proceeding
+    // Attempt to display error on page if possible - This needs DOM ready
+    // We'll handle this inside the main DOMContentLoaded listener below
+}
+
+// --- Custom Auth Logic ---
+document.addEventListener('DOMContentLoaded', () => {
+    // Ensure auth was initialized successfully before proceeding
     if (!auth) {
+         console.error("Auth service failed to initialize earlier. Stopping script.");
+         // Attempt to display error message now that DOM is ready
          const errorDiv = document.getElementById('authErrorMessage');
          if (errorDiv) {
-             errorDiv.textContent = 'Authentication service failed to load.';
+             errorDiv.textContent = 'Authentication service failed to load. Please refresh.';
              errorDiv.style.display = 'block';
          }
          // Hide the form container if auth failed
@@ -202,5 +198,8 @@ try {
             }
         }
     });
+
+    // Make the container visible only if auth state check passed (or user is signed out)
+    // This is handled within the onAuthStateChanged listener now.
 
 }); // End DOMContentLoaded
