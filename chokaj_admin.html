@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chokaj Admin Dashboard</title>
+    <style>
+        /* --- Base & Theme Styles --- */
+        html { height: 100%; box-sizing: border-box; }
+        *, *:before, *:after { box-sizing: inherit; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; color: #e0d5c8; margin: 0; padding: 0; line-height: 1.6; background: linear-gradient(-45deg, #4a3f35, #7a5f45, #3b2e26, #6a4f3a); background-size: 400% 400%; animation: gradientBG 12s ease infinite; min-height: 100vh; display: flex; }
+        @keyframes gradientBG { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+
+        /* --- Sidebar Layout --- */
+        #adminSidebar { width: 220px; background-color: rgba(43, 36, 30, 0.9); padding: 25px 0; height: 100vh; position: fixed; left: 0; top: 0; border-right: 1px solid rgba(106, 79, 58, 0.5); box-shadow: 2px 0 15px rgba(0,0,0,0.3); display: flex; flex-direction: column; }
+        #adminMainContent { flex-grow: 1; padding: 30px 40px; margin-left: 220px; position: relative; min-height: 100vh; }
+
+        /* --- Sidebar Menu Items --- */
+         #adminSidebar h1 { font-size: 1.6em; text-align: center; color: #f0e5d8; margin: 0 15px 30px 15px; padding-bottom: 20px; border-bottom: 1px solid #6a4f3a; text-shadow: 1px 1px 3px rgba(0,0,0,0.4); }
+         .menu-item { display: block; padding: 12px 25px; color: #b0a095; background-color: transparent; border: none; width: 100%; text-align: left; font-size: 1.1em; cursor: pointer; border-left: 4px solid transparent; transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease; }
+         .menu-item:hover { background-color: rgba(106, 79, 58, 0.3); color: #f0e5d8; }
+         .menu-item.active { background-color: rgba(176, 143, 90, 0.2); color: #f0e5d8; font-weight: 600; border-left-color: #b08f5a; }
+         .sidebar-footer { margin-top: auto; padding: 20px 25px; border-top: 1px solid #6a4f3a; }
+         #logoutButton { display: block; width: 100%; text-align: center; background-color: #a05f55; padding: 10px 15px; font-size: 1em; cursor: pointer; border: none; border-radius: 6px; color: #fff; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);}
+         #logoutButton:hover { background-color: #b07f75; }
+
+        /* --- Main Content Sections --- */
+        #adminPageContent { display: none; } /* Initially hidden */
+        #authLoadingMessage { text-align: center; padding: 40px; font-size: 1.2em; }
+        .main-content-section { display: none; animation: fadeIn .5s ease-in-out; }
+        .main-content-section.active { display: block; }
+        @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+        h2 { color: #f0e5d8; text-align: left; margin-top: 0; /* Removed top margin for content sections */ margin-bottom: 20px; font-weight: 500; font-size: 1.8em; border-bottom: 1px solid #6a4f3a; padding-bottom: 10px; }
+        label { display: block; margin-bottom: 8px; color: #b0a095; font-weight: 500; }
+        input[type="text"], input[type="number"], select, textarea, input[type="file"] { width: 100%; padding: 10px 12px; margin-bottom: 15px; border: 1px solid #6a4f3a; border-radius: 6px; background-color: #4a3f35; color: #f0e5d8; font-size: 1em; box-sizing: border-box; transition: border-color .3s ease,box-shadow .3s ease; }
+        input[type="file"] { color: #b0a095; padding: 8px 10px; }
+        input[type="text"]::placeholder, input[type="number"]::placeholder, textarea::placeholder { color: #9a8f85; }
+        textarea { min-height: 80px; line-height: 1.5;}
+        input:focus, select:focus, textarea:focus { outline: none !important; border-color: #b08f5a; box-shadow: 0 0 0 3px rgba(176, 143, 90, 0.3); }
+        select { appearance: none; background-image:url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%23b0a095" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>'); background-repeat:no-repeat; background-position:right 15px center; background-size:16px 12px; padding-right:40px; }
+        select option { background-color: #4a3f35; color: #f0e5d8; }
+        button { display: inline-block; width: auto; min-width: 100px; padding: 10px 20px; background-color: #8a6f45; color: #fff; border: none; border-radius: 6px; font-size: 0.95em; font-weight: 600; cursor: pointer; transition: background-color 0.3s ease; margin-top: 10px; margin-right: 10px; text-shadow: 1px 1px 2px rgba(0,0,0,0.2); vertical-align: middle;}
+        button:hover { background-color: #a08f65; }
+        button:disabled { background-color: #4a3f35; cursor: not-allowed; opacity: .7; }
+        button.delete-btn { background-color: #a05f55; min-width: 60px;} button.delete-btn:hover { background-color: #b07f75; }
+        button.edit-btn { background-color: #5a7a9a; min-width: 60px;} button.edit-btn:hover { background-color: #7a9ab0; }
+        button.add-new-btn { background-color: #6a8a45; margin-bottom: 15px;} button.add-new-btn:hover { background-color: #8aa065; }
+        .form-container { display: none; margin-top: 20px; padding: 25px; background-color: rgba(0,0,0,0.15); border-radius: 8px; border: 1px solid #6a4f3a;}
+        .form-container.active { display: block; }
+        .form-container h2 { margin-top: 0; text-align: center; border-bottom: none; padding-bottom: 0;}
+        .form-section { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+        .data-table { width: 100%; border-collapse: collapse; margin-top: 20px; table-layout: fixed; }
+        .data-table th, .data-table td { border: 1px solid #6a4f3a; padding: 8px 10px; text-align: left; font-size: 0.9em; }
+        .data-table th { background-color: #4a3f35; color: #f0e5d8; font-weight: 600; }
+        .data-table td { background-color: rgba(74, 63, 53, 0.3); color: #e0d5c8; vertical-align: middle; word-wrap: break-word; }
+        .data-table td button { padding: 5px 10px; font-size: 0.85em; margin-right: 5px; margin-top: 0; margin-bottom: 0; min-width: auto;}
+        .image-preview { margin-top: 10px; margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 10px; min-height: 50px; background-color: rgba(74, 63, 53, 0.5); border: 1px dashed #6a4f3a; border-radius: 5px; padding: 5px; }
+        .image-preview img { max-width: 100px; max-height: 100px; border-radius: 4px; border: 1px solid #8a6f45; object-fit: cover; margin-bottom: 5px; }
+        .image-preview-item { 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 5px;
+            background: rgba(43, 36, 30, 0.3);
+            padding: 5px;
+            border-radius: 4px;
+        }
+        .image-preview-item .remove-btn { 
+            background: #a05f55;
+            border: none;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 12px;
+            padding: 4px 8px;
+            cursor: pointer;
+            margin-top: 5px;
+            transition: background-color 0.2s ease;
+        }
+        .image-preview-item .remove-btn:hover { 
+            background: #b07f75;
+        }
+        .modal-close-btn { position: absolute; top: 30px; right: 30px; width: 40px; height: 40px; background: rgba(160, 95, 85, 0.8); border: none; border-radius: 50%; color: #fff; font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.4); z-index: 1001; transition: all 0.2s ease; }
+        .modal-close-btn:hover { background: rgba(176, 127, 117, 0.9); transform: scale(1.1); }
+        #outputLog { margin-top: 30px; background-color: #2b1e16; border: 1px solid #6a4f3a; padding: 15px; border-radius: 6px; font-family: monospace; white-space: pre-wrap; max-height: 250px; overflow-y: auto; font-size: 0.9em; color: #c0b0a5; }
+        #outputLog p { margin: 0 0 5px 0; word-break: break-all; }
+        #outputLog p.error { color: #f87171; }
+        #outputLog p.success { color: #34d399; }
+        /* Modal Styles */
+        .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(10,10,10,.8);display:none;justify-content:center;align-items:center;z-index:1000; backdrop-filter: blur(3px);}.modal-overlay.visible{display:flex}#confirmationModal{background-color:#3b2e26; padding:30px 40px;border-radius:10px;box-shadow:0 5px 20px rgba(0,0,0,.5);width:90%;max-width:450px;text-align:center;border:1px solid #6a4f3a}#modalTitle{color:#f0e5d8;font-size:1.4em;margin-bottom:15px;font-weight:500}#modalMessage{color:#e0d5c8;margin-bottom:30px;line-height:1.6}#modalActions button{margin:0 10px;min-width:100px}#modalConfirmBtn{background-color:#a05f55;}#modalConfirmBtn:hover{background-color:#b07f75;}#modalConfirmBtn.ok-button{background-color:#8a6f45;}#modalConfirmBtn.ok-button:hover{background-color:#a08f65;}#modalCancelBtn{background-color:#6c5b4c;}#modalCancelBtn:hover{background-color:#8a7b6c;}#modalCancelBtn.hidden{display:none}
+        .list-item {
+            display: grid;
+            grid-template-columns: 2fr 2fr 2fr 1fr 1fr;
+            gap: 15px;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background-color: rgba(43, 36, 30, 0.6);
+            border: 1px solid #6a4f3a;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+        .list-item:hover {
+            background-color: rgba(53, 46, 40, 0.6);
+        }
+        .list-item .item-header {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .list-item .item-header h3 {
+            margin: 0;
+            font-size: 1.1em;
+            color: #f0e5d8;
+        }
+        .list-item .item-location {
+            font-size: 0.9em;
+            color: #b0a095;
+        }
+        .list-item .item-details, .list-item .item-tags {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .list-item .item-details p, .list-item .item-tags p {
+            margin: 0;
+            font-size: 0.9em;
+            color: #d0c5b8;
+        }
+        .list-item .item-details strong, .list-item .item-tags strong {
+            color: #f0e5d8;
+        }
+        .list-item .item-images {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .list-item .item-images img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 1px solid #6a4f3a;
+            transition: transform 0.2s;
+        }
+        .list-item .item-images img:hover {
+            transform: scale(1.1);
+            border-color: #8a6f5a;
+        }
+        .list-item .item-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        .list-item .item-actions button {
+            margin: 0;
+            min-width: 70px;
+        }
+
+        /* Image Preview Styles */
+        .item-images {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .item-images img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            border: 1px solid #6a4f3a;
+        }
+
+        .item-images img:hover {
+            transform: scale(1.05);
+        }
+
+        /* Image Modal Styles */
+        .image-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .image-modal-content {
+            position: relative;
+            max-width: 90%;
+            max-height: 90%;
+        }
+
+        .image-modal img {
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+        }
+
+        .image-modal-close {
+    position: absolute !important;
+    top: -12px !important;
+    right: -12px !important;
+    background-color: #a05f55 !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 50% !important;
+    width: 24px !important;
+    height: 24px !important;
+    min-width: 24px !important;
+    min-height: 24px !important;
+    max-width: 24px !important;
+    max-height: 24px !important;
+    font-size: 14px !important;
+    line-height: 1 !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+    transition: background-color 0.2s ease, transform 0.2s ease !important;
+    z-index: 9999 !important;
+}
+
+.image-modal-close:hover {
+    background-color: #874a42 !important;
+    transform: scale(1.1) !important;
+}
+
+
+
+
+
+    </style>
+</head>
+<body>
+    <div id="adminSidebar">
+        <h1>Chokaj Admin</h1>
+        <button class="menu-item active" data-target="manageVenuesContent">Manage Venues</button>
+        <button class="menu-item" data-target="manageVendorsContent">Manage Vendors</button>
+        <div class="sidebar-footer"> <button id="logoutButton" style="display: none;">Logout</button> </div>
+    </div>
+
+    <div id="adminMainContent">
+        <div id="authLoadingMessage">Loading... Checking authentication status...</div>
+
+        <div id="adminPageContent" style="display: none;">
+
+            <div id="manageVenuesContent" class="main-content-section active">
+                <h2>Venues</h2>
+                <button class="add-new-btn" id="addVenueBtn">Add New Venue</button>
+                <div id="venueListContainer">Loading venues...</div>
+                <div id="addEditVenueFormContainer" class="form-container">
+                     <h2 id="venueFormTitle">Add New Venue</h2>
+                     <form id="venueForm" class="form-section">
+                         <input type="hidden" id="venueEditId">
+                         <label for="venueName">Venue Name:</label> <input type="text" id="venueName" required>
+                         <label for="venueCity">City:</label> <input type="text" id="venueCity" required placeholder="e.g., Los Angeles">
+                         <label for="venueCountry">Country:</label> <input type="text" id="venueCountry" required placeholder="e.g., United States">
+                         <label for="venueType">Venue Type:</label> <select id="venueType" required> <option value="">-- Select Type --</option> <option value="Hotel Ballroom">Hotel Ballroom</option> <option value="Banquet Hall">Banquet Hall</option> <option value="Restaurant (Private Room)">Restaurant (Private Room)</option> <option value="Outdoor Space">Outdoor Space (Garden, Beach)</option> <option value="Warehouse/Loft">Warehouse/Loft</option> <option value="Museum/Gallery">Museum/Gallery</option> <option value="Other">Other</option> </select>
+                         <label for="venueStyleTags">Style/Theme Tags (comma-separated):</label> <input type="text" id="venueStyleTags" placeholder="e.g., Modern, Rustic, Elegant">
+                         <label for="venueEventTypeTags">Suitable Event Types (comma-separated):</label> <input type="text" id="venueEventTypeTags" placeholder="e.g., Wedding, Birthday Party, Corporate Event">
+                         <label for="venueCapacity">Max Capacity:</label> <input type="number" id="venueCapacity" min="1">
+                         <div class="form-group">
+                             <label for="venueCost">Cost:</label>
+                             <input type="number" id="venueCost" name="cost" required>
+                             <select id="venueRateType" name="rateType" required>
+                                 <option value="per_day">Per Day</option>
+                                 <option value="per_hour">Per Hour</option>
+                             </select>
+                         </div>
+                         <label for="venueNotes">Notes:</label> <textarea id="venueNotes"></textarea>
+                         <label for="venuePhotos">Upload Venue Photos (Replaces existing on Update):</label> <input type="file" id="venuePhotos" name="venuePhotos" multiple accept="image/*">
+                         <div class="image-preview" id="venuePreview"></div>
+                         <button type="submit" id="saveVenueBtn">Save Venue</button>
+                         <button type="button" id="cancelVenueEditBtn">Cancel</button>
+                     </form>
+                </div>
+            </div>
+
+            <div id="manageVendorsContent" class="main-content-section">
+                <h2>Vendors (Catering/Food Trucks etc.)</h2>
+                <button class="add-new-btn" id="addVendorBtn">Add New Vendor</button>
+                <div id="vendorListContainer">Loading vendors...</div>
+                 <div id="addEditVendorFormContainer" class="form-container">
+                     <h2 id="vendorFormTitle">Add New Vendor</h2>
+                     <form id="vendorForm" class="form-section">
+                         <input type="hidden" id="vendorEditId">
+                         <label for="vendorName">Vendor Name:</label> <input type="text" id="vendorName" required>
+                         <label for="vendorCity">City:</label> <input type="text" id="vendorCity" required placeholder="e.g., Los Angeles">
+                         <label for="vendorCountry">Country:</label> <input type="text" id="vendorCountry" required placeholder="e.g., United States">
+                         <label for="vendorServiceType">Service Type:</label> <select id="vendorServiceType" required> <option value="">-- Select Type --</option> <option value="Caterer">Caterer</option> <option value="Food Truck">Food Truck</option> <option value="Restaurant Catering">Restaurant Catering</option> <option value="Bar Service">Bar Service</option> <option value="Other">Other</option> </select>
+                         <label for="vendorCuisineTags">Cuisine Tags (comma-separated):</label> <input type="text" id="vendorCuisineTags" placeholder="e.g., Italian, Mexican, American, Vegan" required>
+                         <label for="vendorServiceStyles">Service Styles Offered (comma-separated):</label> <input type="text" id="vendorServiceStyles" placeholder="e.g., Buffet, Plated, Food Stations, Drop-off">
+                         <div class="form-group">
+                             <label for="vendorPricePerPerson">Price:</label>
+                             <input type="number" id="vendorPricePerPerson" name="pricePerPerson" required>
+                             <select id="vendorRateType" name="rateType" required>
+                                 <option value="per_person">Per Person</option>
+                                 <option value="flat_rate">Flat Rate</option>
+                             </select>
+                         </div>
+                         <label for="vendorNotes">Notes (Min order size, specialties):</label> <textarea id="vendorNotes"></textarea>
+                         <label for="cateringPhotos">Upload Vendor Photos (Replaces existing on Update):</label> <input type="file" id="cateringPhotos" name="cateringPhotos" multiple accept="image/*">
+                         <div class="image-preview" id="cateringPreview"></div>
+                         <button type="submit" id="saveVendorBtn">Save Vendor</button>
+                         <button type="button" id="cancelVendorEditBtn">Cancel</button>
+                     </form>
+                 </div>
+            </div>
+
+            <hr style="margin: 30px 0; border-color: #6a4f3a; border-style: dashed;">
+            <h2>Output Log</h2>
+            <div id="outputLog">Waiting for actions...</div>
+
+        </div> </div> <div class="modal-overlay" id="modalOverlay"> <div id="confirmationModal"> <h3 id="modalTitle">Confirmation</h3> <p id="modalMessage">Are you sure?</p> <div id="modalActions"> <button id="modalCancelBtn">Cancel</button> <button id="modalConfirmBtn">Confirm</button> </div> </div> </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js"></script>
+
+    <script>
+        // Define showImagePreview in global scope first
+        window.showImagePreview = function(imageUrl) {
+            console.log('Opening image preview for:', imageUrl);
+            const modal = document.createElement('div');
+            modal.className = 'image-modal';
+            
+            const modalContent = document.createElement('div');
+            modalContent.className = 'image-modal-content';
+            
+            const closeButton = document.createElement('button');
+            closeButton.className = 'image-modal-close';
+            closeButton.innerHTML = '×';
+            closeButton.onclick = () => {
+                modal.remove();
+                document.removeEventListener('keydown', handleEsc);
+            };
+            
+            const image = document.createElement('img');
+            image.src = imageUrl;
+            
+            modalContent.appendChild(closeButton);
+            modalContent.appendChild(image);
+            modal.appendChild(modalContent);
+            document.body.appendChild(modal);
+            
+            // Close modal when clicking outside the image
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                    document.removeEventListener('keydown', handleEsc);
+                }
+            });
+            
+            // Close modal with ESC key
+            const handleEsc = (event) => {
+                if (event.key === 'Escape') {
+                    modal.remove();
+                    document.removeEventListener('keydown', handleEsc);
+                }
+            };
+            document.addEventListener('keydown', handleEsc);
+        };
+
+        // Initialize Firebase
+        const firebaseConfig = { apiKey: "AIzaSyAU3qmsD15JX6iwjloTjCPDd-2SuG6oM8w", authDomain: "chokaj-4dcae.firebaseapp.com", projectId: "chokaj-4dcae", storageBucket: "chokaj-4dcae.firebasestorage.app", messagingSenderId: "516228224797", appId: "1:516228224797:web:6bdf08edb5962aad5633f4", measurementId: "G-9QVCF19J2W" };
+        let db; let auth; let storage;
+        try { firebase.initializeApp(firebaseConfig); db = firebase.firestore(); auth = firebase.auth(); storage = firebase.storage(); console.log("Firebase Initialized Successfully."); }
+        catch (error) { console.error("Firebase initialization failed:", error); alert("Firebase could not initialize."); if(document.getElementById('authLoadingMessage')) document.getElementById('authLoadingMessage').textContent = 'Error initializing Firebase.'; }
+    </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+       const authLoadingMessage = document.getElementById('authLoadingMessage');
+       const adminContent = document.getElementById('adminContent');
+       const logoutButton = document.getElementById('logoutButton');
+       const modalOverlay = document.getElementById('modalOverlay');
+       const modalTitle = document.getElementById('modalTitle');
+       const modalMessage = document.getElementById('modalMessage');
+       const modalConfirmBtn = document.getElementById('modalConfirmBtn');
+       const modalCancelBtn = document.getElementById('modalCancelBtn');
+       const outputLogDiv = document.getElementById('outputLog');
+
+       // Define logOutput function
+       const logOutput = (message, type = 'info') => {
+           console.log(message);
+           if (!outputLogDiv) return;
+           const p = document.createElement('p');
+           p.textContent = typeof message === 'object' ? JSON.stringify(message) : message;
+           if (type === 'error') p.classList.add('error');
+           if (type === 'success') p.classList.add('success');
+           if (outputLogDiv.firstChild?.textContent?.startsWith('Waiting') || 
+               outputLogDiv.firstChild?.textContent?.startsWith('Initializing')) {
+               outputLogDiv.innerHTML = '';
+           }
+           outputLogDiv.insertBefore(p, outputLogDiv.firstChild);
+       };
+
+       if (!db || !auth || !storage || !modalOverlay || !modalTitle || !modalMessage || !modalConfirmBtn || !modalCancelBtn) { 
+           console.error("Services or Modal Elements not initialized."); 
+           if(authLoadingMessage) authLoadingMessage.textContent = 'Error: Core components failed.'; 
+           return; 
+       }
+
+       let isModalCurrentlyVisible = false; let confirmCallback = null;
+       const showModalBase = (makeVisible) => { if (!modalOverlay) return false; if (makeVisible) { modalOverlay.classList.add('visible'); isModalCurrentlyVisible = true; } else { modalOverlay.classList.remove('visible'); isModalCurrentlyVisible = false; } return true; };
+       const showInfoModalWithFlag = (title, message) => { console.log(`Show info modal: ${title}`); if (!showModalBase(true)) { alert(`Info: ${title}\n\n${message}`); return; } modalTitle.textContent = title; modalMessage.innerHTML = message; confirmCallback = null; modalConfirmBtn.textContent = "OK"; modalConfirmBtn.classList.add('ok-button'); modalCancelBtn.classList.add('hidden'); };
+       const showModalWithFlag = (title, message, onConfirm) => { console.log(`Show confirm modal: ${title}`); if (!showModalBase(true)) { if (confirm(`Modal Error. Proceed anyway? (${title})`)) if(typeof onConfirm === 'function') onConfirm(); return; } modalTitle.textContent = title; modalMessage.innerHTML = message; confirmCallback = onConfirm; modalConfirmBtn.textContent = "Confirm"; modalConfirmBtn.classList.remove('ok-button'); modalCancelBtn.classList.remove('hidden'); };
+       const hideModalWithFlag = () => { console.log("Hide modal called"); showModalBase(false); confirmCallback = null; if (modalCancelBtn) modalCancelBtn.classList.remove('hidden'); if (modalConfirmBtn) { modalConfirmBtn.textContent = "Confirm"; modalConfirmBtn.classList.remove('ok-button'); } };
+
+        if (modalConfirmBtn) { modalConfirmBtn.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); if (typeof confirmCallback === 'function') { try { confirmCallback(); } catch (e) { console.error("Callback error:", e); } } hideModalWithFlag(); }); }
+        if (modalCancelBtn) { modalCancelBtn.addEventListener('click', (event) => { event.preventDefault(); event.stopPropagation(); hideModalWithFlag(); }); }
+
+       auth.onAuthStateChanged(async (user) => {
+           console.log("[AUTH_CHECK] onAuthStateChanged triggered...");
+           if (user) {
+               console.log(`[AUTH_CHECK] User logged in: UID=${user.uid}`);
+               if(authLoadingMessage) authLoadingMessage.style.display = 'none';
+               if(document.getElementById('adminPageContent')) document.getElementById('adminPageContent').style.display = 'block';
+               if(logoutButton) logoutButton.style.display = 'inline-block';
+               setTimeout(() => initializeAdminPage(logOutput), 500);
+           } else { 
+               console.log("[AUTH_CHECK] User is null."); 
+               if(authLoadingMessage) authLoadingMessage.textContent = 'Redirecting...'; 
+               window.location.href = '/login.html'; 
+           }
+       });
+
+       function initializeAdminPage(logOutput) {
+           console.log("Attempting to initialize admin page functionality NOW...");
+
+           // --- Define logOutput FIRST ---
+           if (!logOutput) {
+               console.error("logOutput function not provided");
+               return;
+           }
+
+           // Get Element Refs INSIDE Initialization
+           const tabButtons = document.querySelectorAll('.menu-item');
+           const mainContentSections = document.querySelectorAll('.main-content-section');
+           const addVenueBtn = document.getElementById('addVenueBtn');
+           const addVendorBtn = document.getElementById('addVendorBtn');
+           const venueListContainer = document.getElementById('venueListContainer');
+           const vendorListContainer = document.getElementById('vendorListContainer');
+           const addEditVenueFormContainer = document.getElementById('addEditVenueFormContainer');
+           const addEditVendorFormContainer = document.getElementById('addEditVendorFormContainer');
+           const venueForm = document.getElementById('venueForm'); // Ref for venue form
+           const vendorForm = document.getElementById('vendorForm'); // Ref for vendor form
+           const currentLogoutButton = document.getElementById('logoutButton'); // Refetch or use global one
+
+           // Check Crucial Elements EXIST
+           if (!venueForm || !vendorForm || !venueListContainer || !vendorListContainer || !addEditVenueFormContainer || !addEditVendorFormContainer || !addVenueBtn || !addVendorBtn || !tabButtons || tabButtons.length === 0) {
+               console.error("FATAL: Crucial elements NULL/empty! Check HTML IDs. Stopping init.");
+               logOutput("Error: Critical UI components missing during init.", "error");
+               if(adminContent) adminContent.innerHTML = '<h2>Error Loading Admin Interface. Check Console.</h2>';
+               return;
+           }
+           console.log("Crucial elements found. Proceeding with setup...");
+
+           // --- State specific to initialized page ---
+            let selectedVenueFiles = []; let selectedCateringFiles = [];
+
+           // --- Helper Functions (defined within or accessible) ---
+            const parseTags = (tagString) => tagString ? tagString.split(',').map(tag => tag.trim().toLowerCase()).filter(tag => tag.length > 0) : [];
+            const formatTags = (tagArray) => Array.isArray(tagArray) ? tagArray.join(', ') : '';
+            const showForm = (formType) => { hideAllFormsAndLists(); if (formType === 'venue') addEditVenueFormContainer.style.display = 'block'; else if (formType === 'vendor') addEditVendorFormContainer.style.display = 'block'; };
+            const hideAllFormsAndLists = () => { addEditVenueFormContainer.style.display = 'none'; addEditVendorFormContainer.style.display = 'none'; if (venueListContainer) venueListContainer.style.display = 'block'; if (vendorListContainer) vendorListContainer.style.display = 'block'; };
+
+           // --- Tab Switching Logic ---
+           tabButtons.forEach(button => { button.addEventListener('click', () => { const targetId = button.getAttribute('data-target'); const targetContent = document.getElementById(targetId); if (!targetContent) return; tabButtons.forEach(btn => btn.classList.remove('active')); mainContentSections.forEach(content => content.classList.remove('active')); button.classList.add('active'); targetContent.classList.add('active'); if (targetId === 'manageVenuesContent') loadVenues(); else if (targetId === 'manageVendorsContent') loadVendors(); hideAllFormsAndLists(); }); });
+
+           // --- Loading Data Functions ---
+           const loadVenues = async () => {
+               logOutput("Loading venues...");
+               if (!venueListContainer) return;
+               venueListContainer.innerHTML = "Loading...";
+               try {
+                   const querySnapshot = await db.collection("venues").get();
+                   const venuesHtml = [];
+                   
+                   querySnapshot.forEach(doc => {
+                       const venue = doc.data();
+                       const costDisplay = venue.rateType === 'per_hour' ? 
+                           `${venue.cost}/hour` : `${venue.cost}/day`;
+                       
+                       venuesHtml.push(`
+                           <div class="list-item">
+                               <div class="item-header">
+                                   <h3>${venue.name}</h3>
+                                   <div class="item-location">${venue.city}, ${venue.country}</div>
+                               </div>
+                               <div class="item-details">
+                                   <p><strong>Type:</strong> ${venue.venueType || 'N/A'}</p>
+                                   <p><strong>Capacity:</strong> ${venue.capacity || 'N/A'}</p>
+                                   <p><strong>Cost:</strong> ${costDisplay}</p>
+                               </div>
+                               <div class="item-tags">
+                                   ${venue.styleTags ? `<p><strong>Style:</strong> ${venue.styleTags.join(', ')}</p>` : ''}
+                                   ${venue.eventTypeTags ? `<p><strong>Events:</strong> ${venue.eventTypeTags.join(', ')}</p>` : ''}
+                               </div>
+                               <div class="item-images">
+                                   ${(venue.imageRefs || []).map(img => `
+                                       <img src="${img.url}" alt="Venue image" onclick="showImagePreview('${img.url}')" />
+                                   `).join('')}
+                               </div>
+                               <div class="item-actions">
+                                   <button class="edit-btn" data-id="${doc.id}" data-type="venue">Edit</button>
+                                   <button class="delete-btn" data-id="${doc.id}" data-type="venue">Delete</button>
+                               </div>
+                           </div>
+                       `);
+                   });
+                   
+                   venueListContainer.innerHTML = venuesHtml.join('') || '<p>No venues found.</p>';
+               } catch (error) {
+                   console.error("Error loading venues:", error);
+                   logOutput(`Error loading venues: ${error.message}`, 'error');
+               }
+           };
+           const loadVendors = async () => {
+               logOutput("Loading vendors...");
+               if (!vendorListContainer) return;
+               vendorListContainer.innerHTML = "Loading...";
+               try {
+                   const querySnapshot = await db.collection("vendors").get();
+                   const vendorsHtml = [];
+                   
+                   querySnapshot.forEach(doc => {
+                       const vendor = doc.data();
+                       const priceDisplay = vendor.rateType === 'flat_rate' ? 
+                           `${vendor.pricePerPerson} flat rate` : `${vendor.pricePerPerson}/person`;
+                       
+                       vendorsHtml.push(`
+                           <div class="list-item">
+                               <div class="item-header">
+                                   <h3>${vendor.name}</h3>
+                                   <div class="item-location">${vendor.city}, ${vendor.country}</div>
+                               </div>
+                               <div class="item-details">
+                                   <p><strong>Service Type:</strong> ${vendor.serviceType || 'N/A'}</p>
+                                   <p><strong>Price:</strong> ${priceDisplay}</p>
+                                   ${vendor.cuisineTags ? `<p><strong>Cuisine:</strong> ${vendor.cuisineTags.join(', ')}</p>` : ''}
+                                   ${vendor.serviceStyles ? `<p><strong>Service Styles:</strong> ${vendor.serviceStyles.join(', ')}</p>` : ''}
+                               </div>
+                               <div class="item-images">
+                                   ${(vendor.imageRefs || []).map(img => `
+                                       <img src="${img.url}" alt="Vendor image" onclick="showImagePreview('${img.url}')" />
+                                   `).join('')}
+                               </div>
+                               <div class="item-actions">
+                                   <button class="edit-btn" data-id="${doc.id}" data-type="vendor">Edit</button>
+                                   <button class="delete-btn" data-id="${doc.id}" data-type="vendor">Delete</button>
+                               </div>
+                           </div>
+                       `);
+                   });
+                   
+                   vendorListContainer.innerHTML = vendorsHtml.join('') || '<p>No vendors found.</p>';
+               } catch (error) {
+                   console.error("Error loading vendors:", error);
+                   logOutput(`Error loading vendors: ${error.message}`, 'error');
+               }
+           };
+
+           // --- File handling functions
+           function createImageModal(imageUrl) {
+               const modalOverlay = document.createElement('div');
+               modalOverlay.className = 'modal-overlay';
+               modalOverlay.style.position = 'fixed';
+               modalOverlay.style.top = '0';
+               modalOverlay.style.left = '0';
+               modalOverlay.style.width = '100%';
+               modalOverlay.style.height = '100%';
+               modalOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+               modalOverlay.style.display = 'flex';
+               modalOverlay.style.justifyContent = 'center';
+               modalOverlay.style.alignItems = 'center';
+               modalOverlay.style.zIndex = '1000';
+
+               const modalContent = document.createElement('div');
+               modalContent.style.position = 'relative';
+               modalContent.style.maxWidth = '90%';
+               modalContent.style.maxHeight = '90%';
+
+               const closeButton = document.createElement('button');
+               closeButton.innerHTML = '×';
+               closeButton.style.position = 'absolute';
+               closeButton.style.right = '-25px';
+               closeButton.style.top = '-25px';
+               closeButton.style.backgroundColor = '#a05f55';
+               closeButton.style.border = 'none';
+               closeButton.style.borderRadius = '50%';
+               closeButton.style.width = '24px';
+               closeButton.style.height = '24px';
+               closeButton.style.fontSize = '16px';
+               closeButton.style.cursor = 'pointer';
+               closeButton.style.zIndex = '1001';
+               closeButton.style.color = 'white';
+               closeButton.style.display = 'flex';
+               closeButton.style.alignItems = 'center';
+               closeButton.style.justifyContent = 'center';
+               closeButton.style.padding = '0';
+               closeButton.onclick = () => modalOverlay.remove();
+
+               const img = document.createElement('img');
+               img.src = imageUrl;
+               img.style.maxWidth = '100%';
+               img.style.maxHeight = '90vh';
+               img.style.objectFit = 'contain';
+
+               modalContent.appendChild(closeButton);
+               modalContent.appendChild(img);
+               modalOverlay.appendChild(modalContent);
+               document.body.appendChild(modalOverlay);
+
+               // Add ESC key listener
+               const handleEsc = (event) => {
+                   if (event.key === 'Escape') {
+                       modalOverlay.remove();
+                       document.removeEventListener('keydown', handleEsc);
+                   }
+               };
+               document.addEventListener('keydown', handleEsc);
+
+               // Click outside to close
+               modalOverlay.onclick = (e) => {
+                   if (e.target === modalOverlay) {
+                       modalOverlay.remove();
+                       document.removeEventListener('keydown', handleEsc);
+                   }
+               };
+           }
+
+           const handleFileSelect = (event, previewElement, fileStorageArray) => {
+               const files = event.target.files;
+               if (!files || files.length === 0) {
+                   return;
+               }
+               logOutput(`File(s) selected: ${files.length}. Displaying previews.`);
+               Array.from(files).forEach(file => {
+                   if (!file.type.startsWith('image/')) {
+                       logOutput(`Skipping non-image file: ${file.name}`);
+                       return;
+                   }
+                   fileStorageArray.push(file);
+                   const reader = new FileReader();
+                   reader.onload = (e) => {
+                       const imgContainer = document.createElement('div');
+                       imgContainer.className = 'image-preview-item';
+                       
+                       const img = document.createElement('img');
+                       img.src = e.target.result;
+                       img.title = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+                       img.style.cursor = 'pointer';
+                       img.onclick = () => createImageModal(e.target.result);
+                       
+                       const removeBtn = document.createElement('button');
+                       removeBtn.textContent = 'Delete';
+                       removeBtn.className = 'remove-btn';
+                       removeBtn.onclick = async (ev) => {
+                           ev.stopPropagation();
+                           const index = fileStorageArray.indexOf(file);
+                           if (index > -1) {
+                               fileStorageArray.splice(index, 1);
+                           }
+                           imgContainer.remove();
+                           logOutput(`Removed image: ${file.name}`);
+                       };
+                       
+                       imgContainer.appendChild(img);
+                       imgContainer.appendChild(removeBtn);
+                       previewElement.appendChild(imgContainer);
+                   };
+                   reader.readAsDataURL(file);
+               });
+               logOutput(`Stored ${fileStorageArray.length} file references for upload.`);
+               event.target.value = '';
+           };
+
+           // Add file input event listeners
+           const venuePhotosInput = document.getElementById('venuePhotos');
+           const cateringPhotosInput = document.getElementById('cateringPhotos');
+           
+           if (venuePhotosInput) {
+               venuePhotosInput.addEventListener('change', (e) => 
+                   handleFileSelect(e, document.getElementById('venuePreview'), selectedVenueFiles)
+               );
+           }
+           
+           if (cateringPhotosInput) {
+               cateringPhotosInput.addEventListener('change', (e) => 
+                   handleFileSelect(e, document.getElementById('cateringPreview'), selectedCateringFiles)
+               );
+           }
+
+           // --- "Add New" Button Listeners ---
+           if(addVenueBtn) addVenueBtn.addEventListener('click', () => { const currentVenueForm = document.getElementById('venueForm'); const venuePreview = document.getElementById('venuePreview'); const venueEditIdField = document.getElementById('venueEditId'); const venueFormTitle = document.getElementById('venueFormTitle'); if (!currentVenueForm || !venuePreview || !venueEditIdField || !venueFormTitle) { console.error("Missing elements for Add Venue action"); return; } currentVenueForm.reset(); venuePreview.innerHTML = ''; selectedVenueFiles = []; venueEditIdField.value = ''; venueFormTitle.textContent = "Add New Venue"; document.getElementById('saveVenueBtn').textContent = "Save New Venue"; showForm('venue'); });
+           if(addVendorBtn) addVendorBtn.addEventListener('click', () => { const currentVendorForm = document.getElementById('vendorForm'); const cateringPreview = document.getElementById('cateringPreview'); const vendorEditIdField = document.getElementById('vendorEditId'); const vendorFormTitle = document.getElementById('vendorFormTitle'); if (!currentVendorForm || !vendorEditIdField || !vendorFormTitle) { console.error("Missing elements for Add Vendor action"); return; } currentVendorForm.reset(); if(cateringPreview) cateringPreview.innerHTML = ''; selectedCateringFiles = []; vendorEditIdField.value = ''; vendorFormTitle.textContent = "Add New Vendor"; document.getElementById('saveVendorBtn').textContent = "Save New Vendor"; showForm('vendor'); });
+           // --- Cancel Edit Button Listeners ---
+            if(document.getElementById('cancelVenueEditBtn')) document.getElementById('cancelVenueEditBtn').addEventListener('click', hideAllFormsAndLists);
+            if(document.getElementById('cancelVendorEditBtn')) document.getElementById('cancelVendorEditBtn').addEventListener('click', hideAllFormsAndLists);
+
+           // --- Form Submission (Add & Edit Logic - Simplified Delete) ---
+           async function uploadFileAndGetRefs(filePath, file) {
+               const fileRef = storage.ref(filePath);
+               logOutput(`Uploading ${file.name} to ${filePath}...`);
+               const snapshot = await fileRef.put(file);
+               const downloadURL = await snapshot.ref.getDownloadURL();
+               logOutput(`Uploaded ${file.name}, got URL.`);
+               return { url: downloadURL, path: filePath };
+           };
+           // Venue form submit handler
+           if (venueForm) {
+               venueForm.addEventListener('submit', async (e) => {
+                   e.preventDefault();
+                   const venueEditIdField = document.getElementById('venueEditId');
+                   const editId = venueEditIdField ? venueEditIdField.value : null;
+                   const isEditing = !!editId;
+                   const submitButton = venueForm.querySelector('button[type="submit"]');
+                   
+                   submitButton.disabled = true;
+                   submitButton.textContent = isEditing ? 'Updating...' : 'Saving...';
+                   
+                   try {
+                       const venueData = {
+                           name: document.getElementById('venueName').value.trim(),
+                           city: document.getElementById('venueCity').value.trim(),
+                           country: document.getElementById('venueCountry').value.trim(),
+                           venueType: document.getElementById('venueType').value,
+                           styleTags: parseTags(document.getElementById('venueStyleTags').value),
+                           eventTypeTags: parseTags(document.getElementById('venueEventTypeTags').value),
+                           capacity: document.getElementById('venueCapacity').value ? parseInt(document.getElementById('venueCapacity').value, 10) : null,
+                           cost: document.getElementById('venueCost').value ? parseFloat(document.getElementById('venueCost').value) : null,
+                           rateType: document.getElementById('venueRateType').value,
+                           notes: document.getElementById('venueNotes').value.trim(),
+                           updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                       };
+
+                       let docRef;
+                       let docId;
+                       
+                       if (isEditing) {
+                           docId = editId;
+                           docRef = db.collection("venues").doc(docId);
+                           
+                           // Handle deleted images
+                           if (currentEditingVenue && currentEditingVenue.originalImageRefs) {
+                               const removedImages = currentEditingVenue.originalImageRefs
+                                   .filter(img => !currentEditingVenue.imageRefs.find(i => i.url === img.url));
+                               
+                               // Delete removed images from storage
+                               for (const img of removedImages) {
+                                   if (img.path) {
+                                       try {
+                                           await storage.ref(img.path).delete();
+                                           logOutput(`Deleted image from storage: ${img.path}`);
+                                       } catch (storageError) {
+                                           console.error('Error deleting from storage:', storageError);
+                                           logOutput(`Note: Could not delete from storage: ${storageError.message}`, 'error');
+                                       }
+                                   }
+                               }
+                               
+                               // Update venue with remaining images
+                               venueData.imageRefs = currentEditingVenue.imageRefs;
+                           }
+                           
+                           // Handle new uploaded images
+                           if (selectedVenueFiles.length > 0) {
+                               submitButton.textContent = 'Uploading New Photos...';
+                               const uploadPromises = selectedVenueFiles.map(file => 
+                                   uploadFileAndGetRefs(`venues/${docId}/${Date.now()}_${file.name}`, file)
+                               );
+                               const newImageRefs = await Promise.all(uploadPromises);
+                               venueData.imageRefs = [...(venueData.imageRefs || []), ...newImageRefs];
+                           }
+                           
+                           await docRef.update(venueData);
+                           logOutput(`Venue updated with ${venueData.imageRefs ? venueData.imageRefs.length : 0} images.`, 'success');
+                       } else {
+                           // Handle new venue creation
+                           if (!isEditing) venueData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                           venueData.imageRefs = [];
+                           docRef = await db.collection("venues").add(venueData);
+                           docId = docRef.id;
+                           
+                           if (selectedVenueFiles.length > 0) {
+                               submitButton.textContent = 'Uploading Photos...';
+                               const uploadPromises = selectedVenueFiles.map(file => 
+                                   uploadFileAndGetRefs(`venues/${docId}/${Date.now()}_${file.name}`, file)
+                               );
+                               const imageRefsArray = await Promise.all(uploadPromises);
+                               await docRef.update({ imageRefs: imageRefsArray });
+                               logOutput(`New venue created with ${imageRefsArray.length} images.`, 'success');
+                           }
+                       }
+                       
+                       // Reset everything
+                       currentEditingVenue = null;
+                       showInfoModalWithFlag("Success", `Venue ${isEditing ? 'updated' : 'created'} successfully!`);
+                       venueForm.reset();
+                       document.getElementById('venuePreview').innerHTML = '';
+                       selectedVenueFiles = [];
+                       hideAllFormsAndLists();
+                       loadVenues();
+                   } catch (error) {
+                       console.error("Error saving venue:", error);
+                       logOutput(`Error: ${error.message}`, 'error');
+                       showInfoModalWithFlag("Error Saving Venue", error.message);
+                   } finally {
+                       submitButton.disabled = false;
+                       submitButton.textContent = isEditing ? 'Update Venue' : 'Save Venue';
+                   }
+               });
+           }
+
+           // --- Event Delegation for Edit/Delete Buttons ---
+           document.addEventListener('click', async (e) => {
+               const target = e.target;
+               
+               // Handle Edit Button Clicks
+               if (target.classList.contains('edit-btn')) {
+                   const id = target.dataset.id;
+                   const type = target.dataset.type;
+                   
+                   if (type === 'venue') {
+                       try {
+                           const doc = await db.collection('venues').doc(id).get();
+                           const venue = doc.data();
+                           // Store current venue data with original image refs
+                           currentEditingVenue = { 
+                               ...venue, 
+                               id,
+                               originalImageRefs: [...(venue.imageRefs || [])] // Keep original refs for comparison
+                           };
+                           
+                           // Populate form fields
+                           document.getElementById('venueEditId').value = id;
+                           document.getElementById('venueName').value = venue.name || '';
+                           document.getElementById('venueCity').value = venue.city || '';
+                           document.getElementById('venueCountry').value = venue.country || '';
+                           document.getElementById('venueType').value = venue.venueType || '';
+                           document.getElementById('venueStyleTags').value = formatTags(venue.styleTags);
+                           document.getElementById('venueEventTypeTags').value = formatTags(venue.eventTypeTags);
+                           document.getElementById('venueCapacity').value = venue.capacity || '';
+                           document.getElementById('venueCost').value = venue.cost || '';
+                           document.getElementById('venueRateType').value = venue.rateType || 'per_day';
+                           document.getElementById('venueNotes').value = venue.notes || '';
+                           
+                           const preview = document.getElementById('venuePreview');
+                           preview.innerHTML = '';
+                           if (venue.imageRefs && venue.imageRefs.length > 0) {
+                               venue.imageRefs.forEach((img, index) => {
+                                   const imgContainer = document.createElement('div');
+                                   imgContainer.className = 'image-preview-item';
+                                   
+                                   const imgElement = document.createElement('img');
+                                   imgElement.src = img.url;
+                                   imgElement.onclick = () => createImageModal(img.url);
+                                   
+                                   const removeBtn = document.createElement('button');
+                                   removeBtn.textContent = 'Delete';
+                                   removeBtn.className = 'remove-btn';
+                                   removeBtn.onclick = (ev) => {
+                                       ev.stopPropagation();
+                                       // Only remove from UI and update local data
+                                       currentEditingVenue.imageRefs = currentEditingVenue.imageRefs.filter(i => i.url !== img.url);
+                                       imgContainer.remove();
+                                       logOutput('Image marked for deletion. Click Update Venue to save changes.', 'info');
+                                   };
+                                   
+                                   imgContainer.appendChild(imgElement);
+                                   imgContainer.appendChild(removeBtn);
+                                   preview.appendChild(imgContainer);
+                               });
+                           }
+                           
+                           document.getElementById('venueFormTitle').textContent = 'Edit Venue';
+                           document.getElementById('saveVenueBtn').textContent = 'Update Venue';
+                           showForm('venue');
+                           
+                       } catch (error) {
+                           console.error("Error loading venue for edit:", error);
+                           logOutput(`Error loading venue: ${error.message}`, 'error');
+                       }
+                   } else if (type === 'vendor') {
+                       try {
+                           const doc = await db.collection('vendors').doc(id).get();
+                           const vendor = doc.data();
+                           
+                           document.getElementById('vendorEditId').value = id;
+                           document.getElementById('vendorName').value = vendor.name || '';
+                           document.getElementById('vendorCity').value = vendor.city || '';
+                           document.getElementById('vendorCountry').value = vendor.country || '';
+                           document.getElementById('vendorServiceType').value = vendor.serviceType || '';
+                           document.getElementById('vendorCuisineTags').value = formatTags(vendor.cuisineTags);
+                           document.getElementById('vendorServiceStyles').value = formatTags(vendor.serviceStyles);
+                           document.getElementById('vendorPricePerPerson').value = vendor.pricePerPerson || '';
+                           document.getElementById('vendorRateType').value = vendor.rateType || 'per_person';
+                           document.getElementById('vendorNotes').value = vendor.notes || '';
+                           
+                           const preview = document.getElementById('cateringPreview');
+                           preview.innerHTML = '';
+                           if (vendor.imageRefs && vendor.imageRefs.length > 0) {
+                               vendor.imageRefs.forEach((img, index) => {
+                                   const imgContainer = document.createElement('div');
+                                   imgContainer.className = 'image-preview-item';
+                                   
+                                   const imgElement = document.createElement('img');
+                                   imgElement.src = img.url;
+                                   imgElement.onclick = () => createImageModal(img.url);
+                                   
+                                   const removeBtn = document.createElement('button');
+                                   removeBtn.textContent = 'Delete';
+                                   removeBtn.className = 'remove-btn';
+                                   removeBtn.onclick = async (ev) => {
+                                       ev.stopPropagation();
+                                       // Only remove from UI and update local data
+                                       currentEditingVendor.imageRefs = currentEditingVendor.imageRefs.filter(i => i.url !== img.url);
+                                       imgContainer.remove();
+                                       logOutput('Image marked for deletion. Click Update Vendor to save changes.', 'info');
+                                   };
+                                   
+                                   imgContainer.appendChild(imgElement);
+                                   imgContainer.appendChild(removeBtn);
+                                   preview.appendChild(imgContainer);
+                               });
+                           }
+                           
+                           document.getElementById('vendorFormTitle').textContent = 'Edit Vendor';
+                           document.getElementById('saveVendorBtn').textContent = 'Update Vendor';
+                           showForm('vendor');
+                           
+                       } catch (error) {
+                           console.error("Error loading vendor for edit:", error);
+                           logOutput(`Error loading vendor: ${error.message}`, 'error');
+                       }
+                   }
+               }
+               
+               // Handle Delete Button Clicks
+               if (target.classList.contains('delete-btn')) {
+                   const id = target.dataset.id;
+                   const type = target.dataset.type;
+                   const collectionName = type === 'venue' ? 'venues' : 'vendors';
+                   const itemName = type === 'venue' ? 'Venue' : 'Vendor';
+                   
+                   showModalWithFlag(
+                       `Delete ${itemName}`,
+                       `Are you sure you want to delete this ${itemName.toLowerCase()}? This action cannot be undone.`,
+                       async () => {
+                           try {
+                               // Get the document first to check for image references
+                               const doc = await db.collection(collectionName).doc(id).get();
+                               const data = doc.data();
+                               
+                               // Delete images from storage if they exist
+                               if (data.imageRefs && data.imageRefs.length > 0) {
+                                   for (const img of data.imageRefs) {
+                                       if (img.path) {
+                                           try {
+                                               await storage.ref(img.path).delete();
+                                               logOutput(`Deleted image: ${img.path}`);
+                                           } catch (error) {
+                                               console.error(`Error deleting image ${img.path}:`, error);
+                                           }
+                                       }
+                                   }
+                               }
+                               
+                               // Delete the document
+                               await db.collection(collectionName).doc(id).delete();
+                               logOutput(`${itemName} deleted successfully`, 'success');
+                               
+                               // Refresh the list
+                               if (type === 'venue') {
+                                   loadVenues();
+                               } else {
+                                   loadVendors();
+                               }
+                           } catch (error) {
+                               console.error(`Error deleting ${itemName.toLowerCase()}:`, error);
+                               logOutput(`Error deleting ${itemName.toLowerCase()}: ${error.message}`, 'error');
+                               showInfoModalWithFlag("Error", `Failed to delete ${itemName.toLowerCase()}: ${error.message}`);
+                           }
+                       }
+                   );
+               }
+           });
+           
+           // Initial load of venues
+           loadVenues();
+           
+           // Logout button functionality
+           if (currentLogoutButton) {
+               currentLogoutButton.addEventListener('click', () => {
+                   showModalWithFlag(
+                       "Confirm Logout",
+                       "Are you sure you want to logout?",
+                       async () => {
+                           try {
+                               await auth.signOut();
+                               window.location.href = '/login.html';
+                           } catch (error) {
+                               console.error("Error signing out:", error);
+                               logOutput(`Error signing out: ${error.message}`, 'error');
+                           }
+                       }
+                   );
+               });
+           }
+
+           // Add a variable to track current venue/vendor being edited
+           let currentEditingVenue = null;
+           let currentEditingVendor = null;
+
+           // Update the edit button handler for venues
+           document.addEventListener('click', async (e) => {
+               const target = e.target;
+               if (target.classList.contains('edit-btn')) {
+                   const id = target.dataset.id;
+                   const type = target.dataset.type;
+                   
+                   if (type === 'venue') {
+                       try {
+                           const doc = await db.collection('venues').doc(id).get();
+                           const venue = doc.data();
+                           // Store current venue data with original image refs
+                           currentEditingVenue = { 
+                               ...venue, 
+                               id,
+                               originalImageRefs: [...(venue.imageRefs || [])] // Keep original refs for comparison
+                           };
+                           
+                           // Populate form fields
+                           document.getElementById('venueEditId').value = id;
+                           document.getElementById('venueName').value = venue.name || '';
+                           document.getElementById('venueCity').value = venue.city || '';
+                           document.getElementById('venueCountry').value = venue.country || '';
+                           document.getElementById('venueType').value = venue.venueType || '';
+                           document.getElementById('venueStyleTags').value = formatTags(venue.styleTags);
+                           document.getElementById('venueEventTypeTags').value = formatTags(venue.eventTypeTags);
+                           document.getElementById('venueCapacity').value = venue.capacity || '';
+                           document.getElementById('venueCost').value = venue.cost || '';
+                           document.getElementById('venueRateType').value = venue.rateType || 'per_day';
+                           document.getElementById('venueNotes').value = venue.notes || '';
+                           
+                           const preview = document.getElementById('venuePreview');
+                           preview.innerHTML = '';
+                           if (venue.imageRefs && venue.imageRefs.length > 0) {
+                               venue.imageRefs.forEach((img, index) => {
+                                   const imgContainer = document.createElement('div');
+                                   imgContainer.className = 'image-preview-item';
+                                   
+                                   const imgElement = document.createElement('img');
+                                   imgElement.src = img.url;
+                                   imgElement.onclick = () => createImageModal(img.url);
+                                   
+                                   const removeBtn = document.createElement('button');
+                                   removeBtn.textContent = 'Delete';
+                                   removeBtn.className = 'remove-btn';
+                                   removeBtn.onclick = (ev) => {
+                                       ev.stopPropagation();
+                                       // Only remove from UI and update local data
+                                       currentEditingVenue.imageRefs = currentEditingVenue.imageRefs.filter(i => i.url !== img.url);
+                                       imgContainer.remove();
+                                       logOutput('Image marked for deletion. Click Update Venue to save changes.', 'info');
+                                   };
+                                   
+                                   imgContainer.appendChild(imgElement);
+                                   imgContainer.appendChild(removeBtn);
+                                   preview.appendChild(imgContainer);
+                               });
+                           }
+                           
+                           document.getElementById('venueFormTitle').textContent = 'Edit Venue';
+                           document.getElementById('saveVenueBtn').textContent = 'Update Venue';
+                           showForm('venue');
+                           
+                       } catch (error) {
+                           console.error("Error loading venue for edit:", error);
+                           logOutput(`Error loading venue: ${error.message}`, 'error');
+                       }
+                   }
+               }
+           });
+      }; // End initializeAdminPage
+
+    }); // End DOMContentLoaded
+  </script>
+</script> 
+</body>
+</html>
