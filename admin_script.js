@@ -775,7 +775,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (type === 'venue') {
                         try {
                             const docSnap = await db.collection('venues').doc(id).get();
-                            if (!docSnap.exists()) {
+                            if (!docSnap.exists) { // Changed from function call to property access
                                 throw new Error(`Venue with ID ${id} not found.`);
                             }
                             const venue = docSnap.data();
@@ -824,7 +824,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     } else if (type === 'vendor') {
                          try {
                             const docSnap = await db.collection('vendors').doc(id).get();
-                             if (!docSnap.exists()) {
+                             if (!docSnap.exists) { // Changed from function call to property access
                                 throw new Error(`Vendor with ID ${id} not found.`);
                             }
                             const vendor = docSnap.data();
