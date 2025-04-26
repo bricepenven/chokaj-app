@@ -1,21 +1,28 @@
-// Firebase services will be initialized by the reserved URLs
-// Ensure firebase objects are available globally or passed appropriately
+// --- Firebase Initialization ---
+const firebaseConfig = {
+  apiKey: "AIzaSyAU3qmsD15JX6iwjloTjCPDd-2SuG6oM8w", // Exposed API Key - Restrict in Cloud Console!
+  authDomain: "chokaj-4dcae.firebaseapp.com",
+  projectId: "chokaj-4dcae",
+  storageBucket: "chokaj-4dcae.firebasestorage.app",
+  messagingSenderId: "516228224797",
+  appId: "1:516228224797:web:6bdf08edb5962aad5633f4",
+  measurementId: "G-9QVCF19J2W"
+};
+
 let auth;
 let db;
 let storage;
 
-// --- Auth Button UI Logic ---
-document.addEventListener('DOMContentLoaded', () => {
-    // Initialize Firebase services from the global firebase object
-    // provided by the reserved URLs script
-    try {
-        auth = firebase.auth();
-        db = firebase.firestore();
-        storage = firebase.storage();
-        console.log("Firebase services obtained for Main Form.");
-    } catch (error) {
-        console.error("Failed to get Firebase services:", error);
-        // Display a more prominent error on the page
+try {
+    firebase.initializeApp(firebaseConfig);
+    auth = firebase.auth();
+    db = firebase.firestore();
+    storage = firebase.storage();
+    console.log("Firebase Initialized for Main Form (Explicit Config).");
+} catch (error) {
+    console.error("Firebase initialization failed:", error);
+    // Display a more prominent error on the page
+    document.addEventListener('DOMContentLoaded', () => { // Ensure body exists
         const errorDiv = document.createElement('div');
         errorDiv.style.cssText = 'color: #f8d7da; background-color: #721c24; padding: 15px; margin: 20px auto; border: 1px solid #f5c6cb; border-radius: 8px; max-width: 560px; text-align: center; font-weight: bold; position: fixed; top: 0; left: 50%; transform: translateX(-50%); z-index: 2000;';
         errorDiv.textContent = `Fatal Error: Could not initialize Firebase services. ${error.message}.`;

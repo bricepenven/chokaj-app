@@ -1,16 +1,27 @@
-// Firebase services will be initialized by the reserved URLs
+// --- Firebase Initialization ---
+const firebaseConfig = {
+  apiKey: "AIzaSyAU3qmsD15JX6iwjloTjCPDd-2SuG6oM8w", // Exposed API Key - Restrict in Cloud Console!
+  authDomain: "chokaj-4dcae.firebaseapp.com",
+  projectId: "chokaj-4dcae",
+  storageBucket: "chokaj-4dcae.firebasestorage.app",
+  messagingSenderId: "516228224797",
+  appId: "1:516228224797:web:6bdf08edb5962aad5633f4",
+  measurementId: "G-9QVCF19J2W"
+};
+
 let auth;
 let db; // db is declared but not used here, keep for consistency or remove if truly unused
 
-// --- Custom Auth Logic ---
-document.addEventListener('DOMContentLoaded', () => {
-    // Initialize Firebase services from the global firebase object
-    try {
-        auth = firebase.auth();
-        // db = firebase.firestore(); // Initialize if needed
-        console.log("Firebase services obtained for Login Page.");
-    } catch (error) {
-        console.error("Failed to get Firebase services:", error);
+try {
+    firebase.initializeApp(firebaseConfig);
+    auth = firebase.auth();
+    // db = firebase.firestore(); // Initialize if needed
+    console.log("Firebase Initialized for Login Page (Explicit Config).");
+} catch (error) {
+    console.error("Firebase initialization failed:", error);
+    alert("Firebase could not initialize. Auth will not work.");
+    // Attempt to display error on page if possible
+    document.addEventListener('DOMContentLoaded', () => { // Ensure elements exist
         const errorDiv = document.getElementById('authErrorMessage');
         if (errorDiv) {
             errorDiv.textContent = 'Core authentication service failed to load.';

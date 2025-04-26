@@ -43,29 +43,35 @@ window.showImagePreview = function(imageUrl) {
     document.addEventListener('keydown', handleEsc);
 };
 
-// Firebase services will be initialized by the reserved URLs
+// --- Firebase Initialization ---
+const firebaseConfig = {
+    apiKey: "AIzaSyAU3qmsD15JX6iwjloTjCPDd-2SuG6oM8w", // Exposed API Key - Restrict in Cloud Console!
+    authDomain: "chokaj-4dcae.firebaseapp.com",
+    projectId: "chokaj-4dcae",
+    storageBucket: "chokaj-4dcae.firebasestorage.app",
+    messagingSenderId: "516228224797",
+    appId: "1:516228224797:web:6bdf08edb5962aad5633f4",
+    measurementId: "G-9QVCF19J2W"
+};
+
 let db;
 let auth;
 let storage;
-let firebaseInitialized = false; // Track if services were obtained
+let firebaseInitialized = false; // Track if initialization succeeds
 
-// --- DOMContentLoaded Event Listener ---
-document.addEventListener('DOMContentLoaded', () => {
-    // Initialize Firebase services from the global firebase object
-    try {
-        // Check if firebase object exists (it should if init.js loaded)
-        if (typeof firebase === 'undefined') {
-            throw new Error("Firebase core object not found. Ensure Firebase Hosting setup is correct.");
-        }
-        db = firebase.firestore();
-        auth = firebase.auth();
-        storage = firebase.storage();
-        firebaseInitialized = true;
-        console.log("Firebase services obtained for Admin Page.");
-    } catch (error) {
-        console.error("Failed to get Firebase services:", error);
-        firebaseInitialized = false; // Ensure this is false
-        alert("Firebase could not initialize. Admin features will not work.");
+try {
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+    auth = firebase.auth();
+    storage = firebase.storage();
+    firebaseInitialized = true;
+    console.log("Firebase Initialized for Admin Page (Explicit Config).");
+} catch (error) {
+    console.error("Firebase initialization failed:", error);
+    firebaseInitialized = false; // Ensure this is false
+    alert("Firebase could not initialize. Admin features will not work.");
+    // Attempt to update loading message if DOM is ready
+    document.addEventListener('DOMContentLoaded', () => {
         const loadingMsg = document.getElementById('authLoadingMessage');
         if (loadingMsg) loadingMsg.textContent = `Error initializing Firebase: ${error.message}`;
         return; // Stop initialization
