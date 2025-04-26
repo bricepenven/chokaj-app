@@ -3,44 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Plan your perfect event with Chokaj. Fill out the details and let our AI assist you.">
+    <link rel="icon" href="/favicon.ico"> <!-- TODO: Add your favicon -->
     <title>Chokaj - Plan Your Event</title>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
-
-    <style>
-        /* --- Styles (Unchanged from before) --- */
-        html { height: 100%;}
-        body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; color:#e0d5c8; margin:0; padding:20px; display:flex; justify-content:center; align-items:center; min-height:100vh; line-height:1.6; background:linear-gradient(-45deg, #4a3f35, #7a5f45, #3b2e26, #6a4f3a); background-size:400% 400%; animation:gradientBG 12s ease infinite; } @keyframes gradientBG { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
-        #eventForm{ background-color:rgba(43, 36, 30, 0.9); padding:30px 40px; border-radius:12px; box-shadow:0 8px 25px rgba(0,0,0,.5); width:100%; max-width:600px; box-sizing:border-box; margin-bottom:20px; position:relative; border:1px solid rgba(106, 79, 58, 0.5); }
-        h1,h2{color:#f0e5d8; text-align:center; margin-bottom:25px; font-weight:500} h1{margin-bottom:40px; font-size:2em; text-shadow: 1px 1px 3px rgba(0,0,0,0.4);} h2{margin-bottom:20px; font-size:1.5em; border-bottom:1px solid #6a4f3a; padding-bottom:10px} label{display:block; margin-bottom:8px; color:#b0a095; font-weight:500}
-        .checkbox-group label, .radio-group label{display:inline-block; margin-right:15px; margin-bottom:0; font-weight:normal;} .checkbox-group input[type=checkbox], .radio-group input[type=radio]{margin-right:5px; vertical-align:middle; accent-color: #b08f5a;}
-        input[type=text],input[type=number],input[type=date],select,textarea,input[type=file], .flatpickr-input { width:100%; padding:12px 15px; margin-bottom:15px; border:1px solid #6a4f3a; border-radius:6px; background-color:#4a3f35; color:#f0e5d8; font-size:1em; box-sizing:border-box; transition:border-color .3s ease,box-shadow .3s ease; }
-        input[type=date] { color-scheme: dark; } input.flatpickr-input { cursor: pointer; background-color:#4a3f35 !important; } input[type=date].flatpickr-hidden { display: none; }
-        textarea{min-height:80px; line-height:1.5;} input[type=file]{color:#b0a095; padding:8px 10px} input[type=text]::placeholder,input[type=number]::placeholder,textarea::placeholder, input[type=date]::placeholder {color:#9a8f85;}
-        input:focus, select:focus, textarea:focus, .flatpickr-input:focus { outline:none !important; border-color:#b08f5a !important; box-shadow:0 0 0 3px rgba(176, 143, 90, 0.3) !important; }
-        select{ appearance:none; background-image:url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%23b0a095" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>'); background-repeat:no-repeat; background-position:right 15px center; background-size:16px 12px; padding-right:40px; } select option{background-color:#4a3f35; color:#f0e5d8;}
-        button{display:inline-block; width:auto; min-width:120px; padding:12px 20px; color:#fff; border:none; border-radius:6px; font-size:1em; font-weight:600; cursor:pointer; transition:background-color .3s ease,transform .1s ease; margin-top:15px; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);}
-        button.next-btn{background-color:#8a6f45; float:right} button.next-btn:hover{background-color:#a08f65;} button.next-btn:active{background-color:#7a5f35; transform:translateY(1px)}
-        button.prev-btn{background-color:#6c5b4c; float:left} button.prev-btn:hover{background-color:#8a7b6c;} button.prev-btn:active{background-color:#5c4b3c; transform:translateY(1px)}
-        button.start-over-btn{background-color:#6c5b4c; float:left} button.start-over-btn:hover{background-color:#8a7b6c;} button.start-over-btn:active{background-color:#5c4b3c; transform:translateY(1px)}
-        #confirmPlanBtn{background-color:#6a8a45; float:right} #confirmPlanBtn:hover{background-color:#8aa065;} #confirmPlanBtn:active{background-color:#5a7a35; transform:translateY(1px)}
-        #getLocationBtn{background-color:#5a7a9a; display:block; width:100%; margin-bottom:10px; float:none} #getLocationBtn:hover{background-color:#7a9ab0;} #getLocationBtn:disabled, button:disabled{background-color:#4a3f35; cursor:not-allowed; opacity:.7}
-        .form-step{display:none; animation:fadeIn .5s ease-in-out; padding-bottom:20px}.form-step.active-step{display:block}.form-step::after{content:"";display:table;clear:both}.other-input-container{display:none;margin-top:15px;animation:fadeIn .4s ease}.food-step{}@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}#locationStatus{padding:10px 15px;margin-bottom:15px;border-radius:5px;font-size:.95em;text-align:center;display:none;background-color:#4a3f35;border:1px solid #6a4f3a;color:#f0e5d8}#locationStatus.status-success{background-color:#5a7a35;border-color:#6a8a45;color:#fff}#locationStatus.status-error{background-color:#8a4f45;border-color:#a06f65;color:#fff}#locationStatus.visible{display:block}
-        .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(10,10,10,.8);display:none;justify-content:center;align-items:center;z-index:1000; backdrop-filter: blur(3px);}.modal-overlay.visible{display:flex}#confirmationModal{background-color:#3b2e26; padding:30px 40px;border-radius:10px;box-shadow:0 5px 20px rgba(0,0,0,.5);width:90%;max-width:450px;text-align:center;border:1px solid #6a4f3a}#modalTitle{color:#f0e5d8;font-size:1.4em;margin-bottom:15px;font-weight:500}#modalMessage{color:#e0d5c8;margin-bottom:30px;line-height:1.6}#modalActions button{margin:0 10px;min-width:100px}#modalConfirmBtn{background-color:#a05f55;}#modalConfirmBtn:hover{background-color:#b07f75;}#modalConfirmBtn.ok-button{background-color:#8a6f45;}#modalConfirmBtn.ok-button:hover{background-color:#a08f65;}#modalCancelBtn{background-color:#6c5b4c;}#modalCancelBtn:hover{background-color:#8a7b6c;}#modalCancelBtn.hidden{display:none}
-        .image-preview{ margin-top: 10px; margin-bottom: 15px; display: flex; flex-wrap: wrap; gap: 10px; min-height: 50px; background-color: rgba(74, 63, 53, 0.5); border: 1px dashed #6a4f3a; border-radius: 5px; padding: 10px; } .preview-item { position: relative; } .preview-item img { display: block; max-width: 100px; max-height: 100px; border-radius: 4px; border: 1px solid #8a6f45; object-fit: cover; } .remove-img-btn { position: absolute; top: -5px; right: -5px; width: 22px; height: 22px; background-color: rgba(0, 0, 0, 0.6); color: #fff; border: 1px solid #fff; border-radius: 50%; font-size: 14px; line-height: 20px; text-align: center; font-weight: bold; cursor: pointer; padding: 0; min-width: auto; margin: 0; } .remove-img-btn:hover { background-color: rgba(200, 50, 50, 0.8); }
-        .suggestions-container { position: relative; margin-bottom: 15px; } .suggestions-list { position: absolute; top: calc(100% - 15px); left: 0; right: 0; background-color: #4a3f35; border: 1px solid #b08f5a; border-top: none; border-radius: 0 0 6px 6px; max-height: 200px; overflow-y: auto; z-index: 999; box-sizing: border-box; display: none; } .suggestions-list.visible { display: block; } .suggestion-item { padding: 10px 15px; color: #f0e5d8; cursor: pointer; border-bottom: 1px solid #6a4f3a; } .suggestion-item:last-child { border-bottom: none; } .suggestion-item:hover { background-color: #6a4f3a; }
-        #summaryContent { text-align: left; margin-top: 20px; padding: 15px; background-color: rgba(74, 63, 53, 0.3); border-radius: 6px; border: 1px solid #6a4f3a;} #summaryContent p { margin-bottom: 12px; line-height: 1.6; } #summaryContent strong { color: #b0a095; display: inline-block; min-width: 150px; padding-right: 10px; font-weight: 600;} #summaryContent ul { list-style: none; padding-left: 25px; margin-top: 6px; } #summaryContent li { margin-bottom: 6px; }
-        @media (max-width:650px){body{padding:10px}#eventForm{padding:20px}h1{font-size:1.8em}h2{font-size:1.3em}#getLocationBtn{margin-bottom:15px}button.next-btn,button#confirmPlanBtn{width:48%;float:right;margin-left:2%}button.prev-btn, button.start-over-btn{width:48%;float:left;margin-right:2%}} @media (max-width:420px){#getLocationBtn{margin-bottom:10px}button.next-btn,button#confirmPlanBtn,button.prev-btn,button.start-over-btn{width:100%;float:none;margin-left:0;margin-right:0;margin-bottom:10px}}
-        .flatpickr-calendar { z-index: 1001 !important; }
-        #eventForm::before { content: ''; position: absolute; width: 10px; height: 10px; background: radial-gradient(ellipse at center, #ffffff 0%, #f0e5d8 50%, rgba(240, 229, 216, 0) 70%); border-radius: 50%; box-shadow: 0 0 6px 2px #fff; animation: marquee-light 8s linear infinite; top: -5px; left: -5px; }
-        @keyframes marquee-light { 0% { top: -5px; left: -5px; } 25% { top: -5px; left: calc(100% - 5px); } 50% { top: calc(100% - 5px); left: calc(100% - 5px); } 75% { top: calc(100% - 5px); left: -5px; } 100% { top: -5px; left: -5px; } }
-        /* Login/Logout Button */
-        #authBtnContainer { position: fixed; top: 15px; right: 15px; z-index: 1010; }
-        #authBtnContainer button { min-width: 100px; padding: 8px 18px; font-size: 0.9em; margin: 0; background: linear-gradient(135deg, #8a6f45 0%, #6a4f3a 100%); box-shadow: 0 2px 8px rgba(0,0,0,0.2); text-shadow: 1px 1px 2px rgba(0,0,0,0.2); }
-        #authBtnContainer button:hover { background: linear-gradient(135deg, #9a7f55 0%, #7a5f4a 100%); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
-        #authBtnContainer button:active { transform: translateY(1px); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="authBtnContainer">
@@ -67,124 +36,15 @@
 
     <div class="modal-overlay" id="modalOverlay"> <div id="confirmationModal"> <h3 id="modalTitle">Confirmation</h3> <p id="modalMessage">Are you sure?</p> <div id="modalActions"> <button id="modalCancelBtn">Cancel</button> <button id="modalConfirmBtn">Confirm</button> </div> </div> </div>
 
+    <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script> <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script> <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js"></script> <script>
-      // Initialize Firebase
-      const firebaseConfig = {
-        apiKey: "AIzaSyAU3qmsD15JX6iwjloTjCPDd-2SuG6oM8w",
-        authDomain: "chokaj-4dcae.firebaseapp.com",
-        projectId: "chokaj-4dcae",
-        storageBucket: "chokaj-4dcae.firebasestorage.app",
-        messagingSenderId: "516228224797",
-        appId: "1:516228224797:web:6bdf08edb5962aad5633f4",
-        measurementId: "G-9QVCF19J2W"
-      };
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js"></script>
 
-      let auth; // Make auth accessible globally in this scope
-      try {
-          firebase.initializeApp(firebaseConfig);
-          auth = firebase.auth(); // Initialize Auth compat library
-          console.log("Firebase Initialized for Main Form.");
-          // Initialize other services if needed later for this page
-          // const db = firebase.firestore();
-          // const storage = firebase.storage();
-      } catch (error) {
-          console.error("Firebase initialization failed:", error);
-          // Show an error to the user on the page?
-      }
-
-      // --- Auth Button UI Logic ---
-      document.addEventListener('DOMContentLoaded', () => {
-          const authBtn = document.getElementById('authBtn');
-          const logoutBtn = document.getElementById('logoutBtn');
-          const authBtnContainer = document.getElementById('authBtnContainer');
-
-          if (!auth) {
-              console.error("Auth service not initialized, hiding buttons.");
-              if(authBtnContainer) authBtnContainer.style.display = 'none';
-              return; // Stop if auth isn't ready
-          }
-
-           // Initial check in case DOM loads after auth state known
-           const initialUser = auth.currentUser;
-           console.log('Initial user state on DOM load:', initialUser ? 'Signed in' : 'Signed out');
-           if (initialUser) {
-                if (authBtn) authBtn.style.display = 'none';
-                if (logoutBtn) logoutBtn.style.display = 'block';
-           } else {
-                if (authBtn) authBtn.style.display = 'block';
-                if (logoutBtn) logoutBtn.style.display = 'none';
-           }
-
-          // Listen for auth state changes
-          auth.onAuthStateChanged((user) => {
-              console.log('Auth state changed:', user ? 'Signed in' : 'Signed out');
-              if (user) {
-                  if (authBtn) authBtn.style.display = 'none';
-                  if (logoutBtn) logoutBtn.style.display = 'block';
-              } else {
-                  if (authBtn) authBtn.style.display = 'block';
-                  if (logoutBtn) logoutBtn.style.display = 'none';
-              }
-          });
-
-          // Auth button directs to login page
-          if (authBtn) {
-              authBtn.addEventListener('click', () => {
-                  console.log('Sign In button clicked, redirecting to login...');
-                  // Use window.location.origin for base URL, works on localhost and deployed
-                  window.location.href = window.location.origin + '/login.html';
-              });
-          }
-
-          // Logout button signs user out
-          if (logoutBtn) {
-              logoutBtn.addEventListener('click', async () => {
-                  console.log('Logout button clicked...');
-                  try {
-                      await auth.signOut();
-                      console.log('Sign out successful');
-                      // The onAuthStateChanged listener will handle hiding the logout button
-                  } catch (error) {
-                      console.error('Error signing out:', error);
-                      alert('Error signing out. Please try again.'); // Use alert for critical errors?
-                  }
-              });
-          }
-      });
-    </script>
-
-    <script>
-        try {
-            document.addEventListener('DOMContentLoaded', () => {
-                // ... Keep ALL the existing main form logic here ...
-                // (Including state, refs, Flatpickr init, core functions, listeners, AI prompt generation)
-                // ... Make sure the generateAiPrompts function uses the correct date/duration fields ...
-                console.log("DOM fully loaded. Initializing Chokaj Form script...");
-                const form=document.getElementById('eventForm');const steps=Array.from(form.querySelectorAll('.form-step'));const TOTAL_STEPS=steps.length;const submitButton=document.getElementById('confirmPlanBtn');const getLocationButton=document.getElementById('getLocationBtn');const cityInput=document.getElementById('city');const countryInput=document.getElementById('country');const eventTypeSelect=document.getElementById('eventType');const otherEventTypeContainer=document.getElementById('otherEventTypeContainer');const otherEventTypeInput=document.getElementById('otherEventType');const eventStyleSelect=document.getElementById('eventStyle');const otherEventStyleContainer=document.getElementById('otherEventStyleContainer');const otherEventStyleInput=document.getElementById('otherEventStyle');const foodStyleSelect=document.getElementById('foodStyle');const otherFoodStyleContainer=document.getElementById('otherFoodStyleContainer');const otherFoodStyleInput=document.getElementById('otherFoodStyle');const modalOverlay=document.getElementById('modalOverlay');const modalTitle=document.getElementById('modalTitle');const modalMessage=document.getElementById('modalMessage');const modalConfirmBtn=document.getElementById('modalConfirmBtn');const modalCancelBtn=document.getElementById('modalCancelBtn');const locationStatusArea=document.getElementById('locationStatus');const inspirationPhotosInput=document.getElementById('inspirationPhotos');const inspirationPreview=document.getElementById('inspirationPreview');const inspirationNotesInput=document.getElementById('inspirationNotes');const citySuggestionsContainer=document.getElementById('citySuggestions');const eventDateInput=document.getElementById('eventStartDateTime');const eventDurationSelect=document.getElementById('eventDuration');const customDurationContainer=document.getElementById('customDurationContainer');const customDurationInput=document.getElementById('customDuration');const summaryContentDiv=document.getElementById('summaryContent');const inspirationUploadContainer=document.getElementById('inspirationUploadContainer');
-                if(!form||!submitButton||!modalOverlay||!inspirationUploadContainer)throw new Error("Core form elements missing.");if(!modalTitle||!modalMessage||!modalConfirmBtn||!modalCancelBtn)console.error("Modal elements missing!");if(!eventDateInput||!eventDurationSelect||!customDurationContainer||!customDurationInput)console.error("Date/Duration step elements missing!");
-                let currentStep=1;const initialFormData={firstName:'',lastName:'',age:null,projectName:'',eventStartDateTime:null,eventDuration:'',customDuration:'',city:'',country:'',eventType:'',otherEventType:'',eventStyle:'',otherEventStyle:'',numPeople:null,foodNeeded:null,foodStyle:'',otherFoodStyle:'',foodBudgetPerPerson:null,budget:null,inspirationNotes:'',inspirationPhotosInfo:[]};let formData={...initialFormData};const foodSteps=[9,10];let selectedInspirationFiles=[];let confirmCallback=null;let statusTimeout=null;let debounceTimer=null;const MAX_INSPIRATION_FILES=1;let isModalCurrentlyVisible=false;
-                const formatDateField=(date)=>{if(!date)return null;return`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;}
-                const formatTimeField=(date)=>{if(!date)return null;const hours=date.getHours();const minutes=String(date.getMinutes()).padStart(2,'0');const ampm=hours>=12?'PM':'AM';const hours12=hours%12||12;return`${String(hours12).padStart(2,'0')}:${minutes} ${ampm}`;}
-                if(eventDateInput&&typeof flatpickr==='function'){console.log("Initializing Flatpickr (Single + Time)...");flatpickr(eventDateInput,{enableTime:true,dateFormat:"Y-m-d H:i",altInput:true,altFormat:"M j, Y h:i K",minDate:"today",minuteIncrement:15,time_24hr:false,theme:"dark",onChange:function(selectedDates,dateStr,instance){if(selectedDates.length>0){formData.eventStartDateTime=dateStr;console.log("Flatpickr onChange - formData.eventStartDateTime set to:",dateStr);}else{formData.eventStartDateTime=null;}},onReady:function(selectedDates,dateStr,instance){if(instance.input.value&&!formData.eventStartDateTime){formData.eventStartDateTime=instance.input.value;}console.log("Flatpickr ready. Initial date/time:",formData.eventStartDateTime);}});console.log("Flatpickr initialized for #eventStartDateTime");}else{}
-                const showStep=(stepNumber)=>{console.log(`Attempting show step: ${stepNumber}. Food: ${formData.foodNeeded}`);if(stepNumber<1||stepNumber>TOTAL_STEPS)return;if(formData.foodNeeded==='no'&&foodSteps.includes(stepNumber)){let nextStepNum=stepNumber;while(foodSteps.includes(nextStepNum)){nextStepNum++;}stepNumber=nextStepNum;if(stepNumber>TOTAL_STEPS)stepNumber=TOTAL_STEPS;console.log(`Skipped food, -> step: ${stepNumber}`);}steps.forEach((step)=>step.classList.remove('active-step'));const targetStepElement=steps.find(step=>parseInt(step.dataset.step,10)===stepNumber);if(targetStepElement){targetStepElement.classList.add('active-step');currentStep=stepNumber;const firstInput=targetStepElement.querySelector('input:not([type="radio"]):not([type="file"]):not([type="checkbox"]), select, textarea');if(firstInput&&firstInput.id!=='eventStartDateTime')setTimeout(()=>{try{firstInput.focus();}catch(e){}},50);else{const firstRadio=targetStepElement.querySelector('input[type="radio"]');if(firstRadio)setTimeout(()=>{try{firstRadio.focus();}catch(e){}},50);}console.log(`Showing Step: ${currentStep}`);}else{console.error(`Step element ${stepNumber} not found.`);showStep(1);}};
-                const collectStepData=(stepNumToCollect)=>{console.log(`Collecting step ${stepNumToCollect}`);try{switch(stepNumToCollect){case 1:formData.firstName=document.getElementById('firstName')?.value.trim()??'';formData.lastName=document.getElementById('lastName')?.value.trim()??'';const ageInput=document.getElementById('age');formData.age=ageInput?.value?parseInt(ageInput.value,10):null;break;case 2:formData.projectName=document.getElementById('projectName')?.value.trim()??'';break;case 3:formData.eventDuration=eventDurationSelect?.value??'';formData.customDuration=(formData.eventDuration==='Other')?customDurationInput?.value.trim()??'':'';console.log(`Collected step 3: StartDateTime=${formData.eventStartDateTime}, Duration=${formData.eventDuration}, Custom=${formData.customDuration}`);break;case 4:formData.city=cityInput?.value.trim()??'';formData.country=countryInput?.value.trim()??'';break;case 5:formData.eventType=eventTypeSelect?.value??'';formData.otherEventType=(formData.eventType==='Other')?otherEventTypeInput?.value.trim()??'':'';break;case 6:formData.eventStyle=eventStyleSelect?.value??'';formData.otherEventStyle=(formData.eventStyle==='Other')?otherEventStyleInput?.value.trim()??'':'';break;case 7:const np=document.getElementById('numPeople');formData.numPeople=np?.value?parseInt(np.value,10):null;break;case 8:const sr=form.querySelector('input[name="foodNeeded"]:checked');formData.foodNeeded=sr?sr.value:null;if(formData.foodNeeded==='no'){formData.foodStyle='';formData.otherFoodStyle='';formData.foodBudgetPerPerson=null;if(foodStyleSelect)foodStyleSelect.value='';if(otherFoodStyleInput)otherFoodStyleInput.value='';const foodBudgetInput=document.getElementById('foodBudgetPerPerson');if(foodBudgetInput)foodBudgetInput.value='';handleOtherOption(foodStyleSelect,otherFoodStyleContainer);}break;case 9:if(formData.foodNeeded==='yes'){formData.foodStyle=foodStyleSelect?.value??'';formData.otherFoodStyle=(formData.foodStyle==='Other')?otherFoodStyleInput?.value.trim()??'':'';}break;case 10:if(formData.foodNeeded==='yes'){const fb=document.getElementById('foodBudgetPerPerson');formData.foodBudgetPerPerson=fb?.value?parseFloat(fb.value):null;}break;case 11:const b=document.getElementById('budget');formData.budget=b?.value?parseFloat(b.value):null;break;case 12:formData.inspirationNotes=inspirationNotesInput?.value.trim()??'';formData.inspirationPhotosInfo=selectedInspirationFiles.map(f=>({name:f.name,size:f.size,type:f.type}));break;}}catch(error){console.error(`Error collecting data step ${stepNumToCollect}:`,error);}};
-                const handleOtherOption=(selectElement,containerElement)=>{if(selectElement&&containerElement){containerElement.style.display=(selectElement.value==='Other')?'block':'none';const customInput=containerElement.querySelector('input, textarea');if(customInput){customInput.required=(selectElement.value==='Other');}}};
-                const showLocationStatus=(message,type='info',duration=4000)=>{if(!locationStatusArea)return;clearTimeout(statusTimeout);locationStatusArea.textContent=message;locationStatusArea.className=`status-${type}`;locationStatusArea.classList.add('visible');if(duration!==null){statusTimeout=setTimeout(()=>{locationStatusArea.classList.remove('visible');},duration);}};const hideLocationStatus=()=>{if(locationStatusArea){clearTimeout(statusTimeout);locationStatusArea.classList.remove('visible');}};const handleGetLocation=async()=>{/* ... */};const renderImagePreviews=()=>{/* ... */};const handleRemoveImage=(event)=>{/* ... */};const handleFileSelect=(event)=>{/* ... */};function debounce(func,wait){/* ... */}const fetchSuggestions=async(query)=>{/* ... */};const displaySuggestions=(suggestionsData)=>{/* ... */};const debouncedFetch=debounce(fetchSuggestions,400);
-                const showModalBase=(makeVisible)=>{/* ... */};const showInfoModalWithFlag=(title,message)=>{/* ... */};const showModalWithFlag=(title,message,onConfirm)=>{/* ... */};const hideModalWithFlag=()=>{/* ... */};
-                const validateStepWithFlag=(stepNumToValidate)=>{/* ... */};const generateAiPrompts=(data)=>{/* ... */};const generateSummary=()=>{/* ... */};const resetForm=()=>{/* ... */};
-                // ... [All the helper functions and event listeners from the previous index.html script block need to be here] ...
-                // ... [This includes showStep, collectStepData, handleOtherOption, showLocationStatus, hideLocationStatus, handleGetLocation, renderImagePreviews, handleRemoveImage, handleFileSelect, debounce, fetchSuggestions, displaySuggestions, showModalBase, showInfoModalWithFlag, showModalWithFlag, hideModalWithFlag, validateStepWithFlag, generateAiPrompts, generateSummary, resetForm, and ALL event listeners (form click, modal clicks, form submit, keydown, beforeunload, input changes)] ...
-
-                 console.log("Initialization Script Completed.");
-            }); // End DOMContentLoaded
-        } catch (initError) {
-             console.error("FATAL ERROR during script execution:", initError); alert(`Fatal Error: ${initError.message}. Form cannot function.`);
-             const errorDiv = document.createElement('div'); errorDiv.style.cssText = 'color: #f8d7da; background-color: #721c24; padding: 15px; margin: 20px auto; border: 1px solid #f5c6cb; border-radius: 8px; max-width: 560px; text-align: center; font-weight: bold;'; errorDiv.textContent = `Fatal Script Error: ${initError.message}.`; document.body.prepend(errorDiv);
-        }
-    </script>
+    <!-- Application Script -->
+    <script src="script.js" defer></script>
 
 </body>
 </html>
