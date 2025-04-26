@@ -1,29 +1,27 @@
-// --- Firebase Initialization ---
-const firebaseConfig = {
-  apiKey: "AIzaSyAU3qmsD15JX6iwjloTjCPDd-2SuG6oM8w",
-  authDomain: "chokaj-4dcae.firebaseapp.com",
-  projectId: "chokaj-4dcae",
-  storageBucket: "chokaj-4dcae.firebasestorage.app",
-  messagingSenderId: "516228224797",
-  appId: "1:516228224797:web:6bdf08edb5962aad5633f4",
-  measurementId: "G-9QVCF19J2W"
-};
-
-let auth; // Make auth accessible globally in this scope
-try {
-    firebase.initializeApp(firebaseConfig);
-    auth = firebase.auth(); // Initialize Auth compat library
-    console.log("Firebase Initialized for Main Form.");
-    // Initialize other services if needed later for this page
-    // const db = firebase.firestore();
-    // const storage = firebase.storage();
-} catch (error) {
-    console.error("Firebase initialization failed:", error);
-    // Show an error to the user on the page?
-}
+// Firebase services will be initialized by the reserved URLs
+// Ensure firebase objects are available globally or passed appropriately
+let auth;
+let db;
+let storage;
 
 // --- Auth Button UI Logic ---
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize Firebase services from the global firebase object
+    // provided by the reserved URLs script
+    try {
+        auth = firebase.auth();
+        db = firebase.firestore();
+        storage = firebase.storage();
+        console.log("Firebase services obtained for Main Form.");
+    } catch (error) {
+        console.error("Failed to get Firebase services:", error);
+        // Display a more prominent error on the page
+        const errorDiv = document.createElement('div');
+        errorDiv.style.cssText = 'color: #f8d7da; background-color: #721c24; padding: 15px; margin: 20px auto; border: 1px solid #f5c6cb; border-radius: 8px; max-width: 560px; text-align: center; font-weight: bold; position: fixed; top: 0; left: 50%; transform: translateX(-50%); z-index: 2000;';
+        errorDiv.textContent = `Fatal Error: Could not initialize Firebase services. ${error.message}.`;
+        document.body.prepend(errorDiv);
+        return; // Stop further execution if Firebase isn't available
+    }
     const authBtn = document.getElementById('authBtn');
     const logoutBtn = document.getElementById('logoutBtn');
     const authBtnContainer = document.getElementById('authBtnContainer');
