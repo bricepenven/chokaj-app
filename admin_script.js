@@ -891,7 +891,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             try {
                                 // Get the document first to retrieve image references for deletion
                                 const docSnap = await db.collection(collectionName).doc(id).get();
-                                if (docSnap.exists()) {
+                                if (docSnap.exists) { // Changed from exists() to exists
                                     const data = docSnap.data();
                                     // Delete images from storage if they exist
                                     if (data.imageRefs && data.imageRefs.length > 0) {
