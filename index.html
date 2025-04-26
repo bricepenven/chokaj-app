@@ -20,10 +20,54 @@
     <form id="eventForm" novalidate method="post">
         <div class="form-step active-step" data-step="1"> <h2>About You</h2> <label for="firstName">First Name:</label> <input type="text" id="firstName" name="firstName" required> <label for="lastName">Last Name:</label> <input type="text" id="lastName" name="lastName" required> <label for="age">Age:</label> <input type="number" id="age" name="age" min="1" required> <button type="button" class="next-btn">Next</button> </div>
         <div class="form-step" data-step="2"> <h2>Event Nickname</h2> <label for="projectName">Give your event plan a name:</label> <input type="text" id="projectName" name="projectName" placeholder="e.g., Sarah's 30th Birthday Bash" required> <button type="button" class="prev-btn">Previous</button> <button type="button" class="next-btn">Next</button> </div>
-        <div class="form-step" data-step="3"> <h2>When Is It?</h2> <label for="eventStartDateTime">Event Start Date & Time:</label> <input type="date" id="eventStartDateTime" name="eventStartDateTime" placeholder="Select start date and time..." required> <label for="eventDuration">Approximate Duration:</label> <select id="eventDuration" name="eventDuration" required> <option value="" disabled selected>-- Select Duration --</option> <option value="1h">1 Hour</option> <option value="2h">2 Hours</option> <option value="3h">3 Hours</option> <option value="4h">4 Hours</option> <option value="6h">6 Hours</option> <option value="8h">8 Hours</option> <option value="12h">~ Half Day (12 Hours)</option> <option value="24h">~ Full Day / Overnight (24+ Hours)</option> <option value="Other">Other (Specify Below)</option> </select> <div class="other-input-container" id="customDurationContainer"> <label for="customDuration">Specify Duration Details:</label> <input type="text" id="customDuration" name="customDuration" placeholder="e.g., 2.5 hours, All evening, Full weekend"> </div> <button type="button" class="prev-btn">Previous</button> <button type="button" class="next-btn">Next</button> </div>
+        <div class="form-step" data-step="3">
+            <h2>When Is It?</h2>
+            <label for="eventStartDateTime">Event Start Date & Time:</label>
+            <input type="date" id="eventStartDateTime" name="eventStartDateTime" placeholder="Select start date and time..." required>
+            <label for="eventDuration">Approximate Duration:</label>
+            <select id="eventDuration" name="eventDuration" required>
+                <option value="" disabled selected>-- Select Duration --</option>
+                <option value="1h">1 Hour</option>
+                <option value="2h">2 Hours</option>
+                <option value="3h">3 Hours</option>
+                <option value="4h">4 Hours</option>
+                <option value="6h">6 Hours</option>
+                <option value="8h">8 Hours</option>
+                <option value="12h">~ Half Day (12 Hours)</option>
+                <option value="24h">~ Full Day / Overnight (24+ Hours)</option>
+                <option value="Other">Other (Specify Below)</option>
+            </select>
+            <div class="other-input-container" id="customDurationContainer">
+                <label for="customDuration">Specify Duration Details:</label>
+                <input type="text" id="customDuration" name="customDuration" placeholder="e.g., 2.5 hours, All evening, Full weekend">
+            </div>
+            <button type="button" class="prev-btn">Previous</button>
+            <button type="button" class="next-btn">Next</button>
+        </div>
         <div class="form-step" data-step="4"> <h2>Whereabouts</h2> <div id="locationStatus"></div> <button type="button" id="getLocationBtn">Use My Current Location</button> <div class="suggestions-container"> <label for="city">City:</label> <input type="text" id="city" name="city" required autocomplete="off"> <div id="citySuggestions" class="suggestions-list"></div> </div> <label for="country">Country:</label> <input type="text" id="country" name="country" required> <button type="button" class="prev-btn">Previous</button> <button type="button" class="next-btn">Next</button> </div>
         <div class="form-step" data-step="5"> <h2>What Kind of Party?</h2> <label for="eventType">Select the type of event:</label> <select id="eventType" name="eventType" required> <option value="" disabled selected>-- Select Type --</option> <option value="Wedding">Wedding</option> <option value="Birthday Party">Birthday Party</option> <option value="Corporate Event">Corporate Event</option> <option value="Festival">Festival</option> <option value="Conference">Conference</option> <option value="Workshop">Workshop</option> <option value="Baby Shower">Baby Shower</option> <option value="Anniversary">Anniversary</option> <option value="Other">Other</option> </select> <div class="other-input-container" id="otherEventTypeContainer"> <label for="otherEventType">Please specify:</label> <input type="text" id="otherEventType" name="otherEventType" placeholder="Specify event type"> </div> <button type="button" class="prev-btn">Previous</button> <button type="button" class="next-btn">Next</button> </div>
-        <div class="form-step" data-step="6"> <h2>The Vibe</h2> <label for="eventStyle">Select the style/theme:</label> <select id="eventStyle" name="eventStyle" required> <option value="" disabled selected>-- Select Style --</option> <option value="Elegant & Formal">Elegant & Formal</option> <option value="Rustic & Bohemian">Rustic & Bohemian</option> <option value="Modern & Minimalist">Modern & Minimalist</option> <option value="Vintage & Retro">Vintage & Retro</option> <option value="Tropical & Beachy">Tropical & Beachy</option> <option value="Glamorous & Chic">Glamorous & Chic</option> <option value="Fun & Casual">Fun & Casual</option> <option value="Themed">Themed</option> <option value="Other">Other</option> </select> <div class="other-input-container" id="otherEventStyleContainer"> <label for="otherEventStyle">Please specify:</label> <input type="text" id="otherEventStyle" name="otherEventStyle" placeholder="Specify style/theme"> </div> <button type="button" class="prev-btn">Previous</button> <button type="button" class="next-btn">Next</button> </div>
+        <div class="form-step" data-step="6">
+            <h2>The Vibe</h2>
+            <label for="eventStyle">Select the style/theme:</label>
+            <select id="eventStyle" name="eventStyle" required>
+                <option value="" disabled selected>-- Select Style --</option>
+                <option value="Elegant & Formal">Elegant & Formal</option>
+                <option value="Rustic & Bohemian">Rustic & Bohemian</option>
+                <option value="Modern & Minimalist">Modern & Minimalist</option>
+                <option value="Vintage & Retro">Vintage & Retro</option>
+                <option value="Tropical & Beachy">Tropical & Beachy</option>
+                <option value="Glamorous & Chic">Glamorous & Chic</option>
+                <option value="Fun & Casual">Fun & Casual</option>
+                <option value="Themed">Themed</option>
+                <option value="Other">Other</option>
+            </select>
+            <div class="other-input-container" id="otherEventStyleContainer">
+                <label for="otherEventStyle">Please specify:</label>
+                <input type="text" id="otherEventStyle" name="otherEventStyle" placeholder="Specify style/theme">
+            </div>
+            <button type="button" class="prev-btn">Previous</button>
+            <button type="button" class="next-btn">Next</button>
+        </div>
         <div class="form-step" data-step="7"> <h2>Headcount</h2> <label for="numPeople">Approximate number of people attending:</label> <input type="number" id="numPeople" name="numPeople" min="1" placeholder="e.g., 50" required> <button type="button" class="prev-btn">Previous</button> <button type="button" class="next-btn">Next</button> </div>
         <div class="form-step" data-step="8"> <h2>Food Time?</h2> <label>Is catering/food required for this event?</label> <div class="radio-group"> <label><input type="radio" id="foodNeededYes" name="foodNeeded" value="yes" required> Yes</label> <label><input type="radio" id="foodNeededNo" name="foodNeeded" value="no" required> No</label> </div> <button type="button" class="prev-btn">Previous</button> <button type="button" class="next-btn">Next</button> </div>
         <div class="form-step food-step" data-step="9"> <h2>Serving Style</h2> <label for="foodStyle">Select the desired food service style:</label> <select id="foodStyle" name="foodStyle" required> <option value="" disabled selected>-- Select Style --</option> <option value="Buffet">Buffet</option> <option value="Plated Dinner">Plated Dinner (Sit-down)</option> <option value="Food Stations">Food Stations</option> <option value="Family Style">Family Style</option> <option value="Cocktail Reception">Cocktail Reception (Appetizers/Hors d'oeuvres)</option> <option value="Food Trucks">Food Trucks</option> <option value="Dessert Only">Dessert Only</option> <option value="Other">Other</option> </select> <div class="other-input-container" id="otherFoodStyleContainer"> <label for="otherFoodStyle">Please specify:</label> <input type="text" id="otherFoodStyle" name="otherFoodStyle" placeholder="Specify food style"> </div> <button type="button" class="prev-btn">Previous</button> <button type="button" class="next-btn">Next</button> </div>
