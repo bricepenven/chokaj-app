@@ -236,7 +236,7 @@ document.addEventListener('DOMContentLoaded', () => {
             logOutput("[AUTH_CHECK] User is null. Redirecting to login.");
             if (authLoadingMessage) authLoadingMessage.textContent = 'Redirecting to login...';
             // Redirect to login page if not authenticated
-            window.location.href = '/login.html'; // Ensure this path is correct
+            window.location.href = 'login.html'; // Use relative path for GitHub Pages compatibility
         }
     });
 
