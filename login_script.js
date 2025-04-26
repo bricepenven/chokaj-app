@@ -11,24 +11,22 @@ const firebaseConfig = {
 
 let auth;
 let db; // db is declared but not used here, keep for consistency or remove if truly unused
-
-try {
-    firebase.initializeApp(firebaseConfig);
-    auth = firebase.auth();
-    // db = firebase.firestore(); // Initialize if needed
-    console.log("Firebase Initialized for Login Page (Explicit Config).");
-} catch (error) {
-    console.error("Firebase initialization failed:", error);
-    alert("Firebase could not initialize. Auth will not work.");
-    // Attempt to display error on page if possible - This needs DOM ready
-    // We'll handle this inside the main DOMContentLoaded listener below
-}
+let firebaseInitialized = false;
 
 // --- Custom Auth Logic ---
 document.addEventListener('DOMContentLoaded', () => {
-    // Ensure auth was initialized successfully before proceeding
-    if (!auth) {
-         console.error("Auth service failed to initialize earlier. Stopping script.");
+
+    // Initialize Firebase INSIDE DOMContentLoaded
+    try {
+        firebase.initializeApp(firebaseConfig);
+        auth = firebase.auth();
+        // db = firebase.firestore(); // Initialize if needed
+        firebaseInitialized = true;
+        console.log("Firebase Initialized for Login Page (Explicit Config).");
+    } catch (error) {
+        console.error("Firebase initialization failed:", error);
+        firebaseInitialized = false;
+        alert("Firebase could not initialize. Auth will not work.");
          // Attempt to display error message now that DOM is ready
          const errorDiv = document.getElementById('authErrorMessage');
          if (errorDiv) {
@@ -37,9 +35,24 @@ document.addEventListener('DOMContentLoaded', () => {
          }
          // Hide the form container if auth failed
          const authContainer = document.querySelector('.auth-container');
+         const authContainer = document.querySelector('.auth-container');
          if (authContainer) authContainer.style.visibility = 'hidden';
-         return; // Stop execution if auth failed
+         return; // Stop execution if Firebase init failed
     }
+
+    // Proceed only if Firebase initialized successfully
+     if (!firebaseInitialized || !auth) { // Check both flag and auth object
+         console.error("Firebase auth service not available after initialization attempt. Stopping script.");
+         const errorDiv = document.getElementById('authErrorMessage');
+         if (errorDiv) {
+             errorDiv.textContent = 'Authentication service failed to load. Please refresh.';
+             errorDiv.style.display = 'block';
+         }
+         const authContainer = document.querySelector('.auth-container');
+         if (authContainer) authContainer.style.visibility = 'hidden';
+         return;
+     }
+
 
     // Get DOM elements
     const signInForm = document.getElementById('signInForm');

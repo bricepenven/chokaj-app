@@ -59,30 +59,37 @@ let auth;
 let storage;
 let firebaseInitialized = false; // Track if initialization succeeds
 
-try {
-    firebase.initializeApp(firebaseConfig);
-    db = firebase.firestore();
-    auth = firebase.auth();
-    storage = firebase.storage();
-    firebaseInitialized = true;
-    console.log("Firebase Initialized for Admin Page (Explicit Config).");
-} catch (error) {
-    console.error("Firebase initialization failed:", error);
-    firebaseInitialized = false; // Ensure this is false
-    alert("Firebase could not initialize. Admin features will not work.");
-    // We'll handle updating the loading message inside the main DOMContentLoaded listener
-}
 
 // --- DOMContentLoaded Event Listener ---
 document.addEventListener('DOMContentLoaded', () => {
-    // Check if Firebase failed to initialize earlier
-    if (!firebaseInitialized) {
-        console.error("Skipping admin page initialization because Firebase failed.");
+
+    // Initialize Firebase INSIDE DOMContentLoaded
+    try {
+        firebase.initializeApp(firebaseConfig);
+        db = firebase.firestore();
+        auth = firebase.auth();
+        storage = firebase.storage();
+        firebaseInitialized = true;
+        console.log("Firebase Initialized for Admin Page (Explicit Config).");
+    } catch (error) {
+        console.error("Firebase initialization failed:", error);
+        firebaseInitialized = false; // Ensure this is false
+        alert("Firebase could not initialize. Admin features will not work.");
         // Update loading message now that DOM is ready
         const loadingMsg = document.getElementById('authLoadingMessage');
+        const loadingMsg = document.getElementById('authLoadingMessage');
         if (loadingMsg) loadingMsg.textContent = 'Error initializing Firebase. Please refresh.';
-        return;
+        return; // Stop further execution in this listener
     }
+
+     // Proceed only if Firebase initialized successfully
+     if (!firebaseInitialized || !db || !auth || !storage) {
+         console.error("Firebase services not available after initialization attempt. Stopping script.");
+         const loadingMsg = document.getElementById('authLoadingMessage');
+         if (loadingMsg) loadingMsg.textContent = 'Error loading Firebase services. Please refresh.';
+         return;
+     }
+
 
     // Get common elements needed early
     const authLoadingMessage = document.getElementById('authLoadingMessage');

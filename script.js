@@ -12,34 +12,39 @@ const firebaseConfig = {
 let auth;
 let db;
 let storage;
-
-try {
-    firebase.initializeApp(firebaseConfig);
-    auth = firebase.auth();
-    db = firebase.firestore();
-    storage = firebase.storage();
-    console.log("Firebase Initialized for Main Form (Explicit Config).");
-} catch (error) {
-    console.error("Firebase initialization failed:", error);
-    // Display a more prominent error on the page - This needs DOM ready
-    // We'll handle this inside the main DOMContentLoaded listener below
-}
-
+let firebaseInitialized = false; // Track initialization success
 
 // --- Main Form Logic (including Auth Button UI) ---
 try {
     document.addEventListener('DOMContentLoaded', () => {
 
-        // Check if Firebase failed initialization earlier
-        if (!auth || !db || !storage) {
-             console.error("Firebase services not available. Stopping form script.");
+        // Initialize Firebase INSIDE DOMContentLoaded
+        try {
+            firebase.initializeApp(firebaseConfig);
+            auth = firebase.auth();
+            db = firebase.firestore();
+            storage = firebase.storage();
+            firebaseInitialized = true;
+            console.log("Firebase Initialized for Main Form (Explicit Config).");
+        } catch (error) {
+            console.error("Firebase initialization failed:", error);
+            firebaseInitialized = false;
              // Display error now that DOM is ready
              const errorDiv = document.createElement('div');
              errorDiv.style.cssText = 'color: #f8d7da; background-color: #721c24; padding: 15px; margin: 20px auto; border: 1px solid #f5c6cb; border-radius: 8px; max-width: 560px; text-align: center; font-weight: bold; position: fixed; top: 0; left: 50%; transform: translateX(-50%); z-index: 2000;';
              errorDiv.textContent = `Fatal Error: Could not initialize Firebase services. Form cannot function.`;
              document.body.prepend(errorDiv);
+             document.body.prepend(errorDiv);
              return; // Stop form initialization
         }
+
+        // Proceed only if Firebase initialized successfully
+        if (!firebaseInitialized) {
+             console.error("Firebase did not initialize successfully. Stopping script execution.");
+             // Optionally display another message or rely on the one from the catch block
+             return;
+        }
+
 
         // --- Auth Button UI Logic (Moved inside main DOMContentLoaded) ---
         const authBtn = document.getElementById('authBtn');
