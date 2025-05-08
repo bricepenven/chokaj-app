@@ -223,11 +223,161 @@ try {
         const fetchSuggestions=async(query)=>{ console.warn("fetchSuggestions function not implemented."); /* ... Actual implementation needed ... */ return []; };
         const displaySuggestions=(suggestionsData)=>{ console.warn("displaySuggestions function not implemented."); /* ... Actual implementation needed ... */};
         const debouncedFetch=debounce(fetchSuggestions,400);
-        const showModalBase=(makeVisible)=>{ console.warn("showModalBase function not implemented."); /* ... Actual implementation needed ... */};
-        const showInfoModalWithFlag=(title,message)=>{ console.warn("showInfoModalWithFlag function not implemented."); /* ... Actual implementation needed ... */};
-        const showModalWithFlag=(title,message,onConfirm)=>{ console.warn("showModalWithFlag function not implemented."); /* ... Actual implementation needed ... */};
-        const hideModalWithFlag=()=>{ console.warn("hideModalWithFlag function not implemented."); /* ... Actual implementation needed ... */};
-        const validateStepWithFlag=(stepNumToValidate)=>{ console.warn("validateStepWithFlag function not implemented."); /* ... Actual implementation needed ... */ return true; /* Placeholder */ };
+
+        // --- Modal Helper Functions ---
+        const showModalBase = (makeVisible) => {
+            if (!modalOverlay) {
+                console.error("Modal overlay not found for showModalBase.");
+                return false;
+            }
+            modalOverlay.classList.toggle('visible', makeVisible);
+            isModalCurrentlyVisible = makeVisible;
+            return true;
+        };
+        
+        const hideModalWithFlag = () => {
+            if (!modalOverlay) return; // Nothing to do if overlay isn't there
+            showModalBase(false); // Hide the modal
+            confirmCallback = null; // Clear any stored callback
+
+            // Reset modal buttons to a default state
+            if (modalCancelBtn) {
+                modalCancelBtn.style.display = ''; // Or 'inline-block' or 'block' depending on CSS
+            }
+            if (modalConfirmBtn) {
+                modalConfirmBtn.textContent = "Confirm"; // Default text
+                // Remove specific listeners if they were added directly, though general one should be okay
+            }
+        };
+
+        const showInfoModalWithFlag = (title, message) => {
+            console.log(`Show info modal: ${title}`);
+            if (!showModalBase(true)) {
+                alert(`Info: ${title}\n\n${message}`); // Fallback alert
+                return;
+            }
+            if (!modalTitle || !modalMessage || !modalConfirmBtn || !modalCancelBtn) {
+                console.error("Modal content elements (title, message, buttons) not found for info modal.");
+                showModalBase(false); // Hide overlay if content is missing
+                alert(`Info: ${title}\n\n${message}`); // Fallback
+                return;
+            }
+        
+            modalTitle.textContent = title;
+            modalMessage.innerHTML = message; // Allow HTML in message
+        
+            if (modalConfirmBtn) {
+                modalConfirmBtn.textContent = "OK";
+                // Clone and replace to manage listeners specifically for this "OK" button.
+                const newConfirmBtn = modalConfirmBtn.cloneNode(true);
+                modalConfirmBtn.parentNode.replaceChild(newConfirmBtn, modalConfirmBtn);
+                document.getElementById('modalConfirmBtn').addEventListener('click', hideModalWithFlag, { once: true });
+            }
+            if (modalCancelBtn) {
+                modalCancelBtn.style.display = 'none'; // Hide cancel for info modal
+            }
+        };
+        
+        const showModalWithFlag = (title, message, onConfirm) => {
+            console.log(`Show confirm modal: ${title}`);
+            if (!showModalBase(true)) {
+                 // Fallback confirmation
+                if (confirm(`${title}\n\n${message}`)) { // Standard browser confirm
+                    if (typeof onConfirm === 'function') onConfirm();
+                }
+                return;
+            }
+            if (!modalTitle || !modalMessage || !modalConfirmBtn || !modalCancelBtn) {
+                console.error("Modal content elements (title, message, buttons) not found for confirm modal.");
+                showModalBase(false); // Hide overlay
+                if (confirm(`${title}\n\n${message}`)) { // Fallback
+                    if (typeof onConfirm === 'function') onConfirm();
+                }
+                return;
+            }
+        
+            modalTitle.textContent = title;
+            modalMessage.innerHTML = message;
+            confirmCallback = onConfirm; // Store the callback for the main confirm button listener
+        
+            if (modalConfirmBtn) {
+                modalConfirmBtn.textContent = "Confirm"; // Or make dynamic
+                // The existing generic listener for modalConfirmBtn will call confirmCallback and hideModalWithFlag
+            }
+            if (modalCancelBtn) {
+                modalCancelBtn.style.display = ''; // Ensure cancel is visible
+            }
+        };
+        // --- End Modal Helper Functions ---
+
+        const validateStepWithFlag = (stepNumToValidate) => {
+            console.log(`Validating step ${stepNumToValidate}`);
+            const stepElement = steps.find(s => parseInt(s.dataset.step, 10) === stepNumToValidate);
+        
+            if (!stepElement) {
+                console.error(`Step element ${stepNumToValidate} not found for validation.`);
+                showInfoModalWithFlag("Form Error", "A problem occurred with the form structure. Please refresh and try again.");
+                return false;
+            }
+        
+            // Fields in Mood Board (step 12) are not mandatory by default.
+            // HTML for step 12 inputs (inspirationPhotos, inspirationNotes) does not have 'required'.
+            // If any field in step 12 *were* marked 'required', checkValidity() would catch it.
+            // This explicit skip is for the general case where step 12 fields are optional.
+            if (stepNumToValidate === 12) {
+                return true;
+            }
+        
+            const inputsToValidate = stepElement.querySelectorAll('input:not([type="button"]):not([type="submit"]):not([type="reset"]), select, textarea');
+            let firstInvalidElement = null;
+        
+            // Clear previous invalid states for the current step
+            stepElement.querySelectorAll('.invalid-input').forEach(el => el.classList.remove('invalid-input'));
+        
+            for (const input of inputsToValidate) {
+                // `checkValidity()` respects the `required` attribute/property,
+                // `type` (e.g., email, number), `min`, `max`, `pattern`, etc.
+                // The `handleOtherOption` function correctly sets `.required` for conditional fields.
+                if (!input.checkValidity()) {
+                    firstInvalidElement = input;
+                    break; 
+                }
+            }
+        
+            if (firstInvalidElement) {
+                let fieldName = firstInvalidElement.name || firstInvalidElement.id;
+                const label = stepElement.querySelector(`label[for="${firstInvalidElement.id}"]`);
+                if (label && label.textContent) {
+                    fieldName = label.textContent.replace(':', '').trim();
+                }
+        
+                // Use the browser's validation message if available, otherwise a generic one.
+                const message = firstInvalidElement.validationMessage || `The field "${fieldName}" is required or has an invalid value. Please correct it.`;
+                
+                const isInvalidElementVisible = firstInvalidElement.offsetWidth > 0 || firstInvalidElement.offsetHeight > 0 || firstInvalidElement.getClientRects().length > 0;
+        
+                if (isInvalidElementVisible && typeof firstInvalidElement.focus === 'function') {
+                    firstInvalidElement.focus();
+                } else if (!isInvalidElementVisible && firstInvalidElement.type !== 'hidden') {
+                    // Log if a required field is hidden but invalid. This might indicate a form logic issue.
+                    console.warn(`Field "${fieldName}" is hidden but failing validation.`);
+                }
+                
+                firstInvalidElement.classList.add('invalid-input');
+                
+                // Auto-remove class on interaction
+                const eventType = (firstInvalidElement.tagName === 'SELECT' || ['radio', 'checkbox'].includes(firstInvalidElement.type)) ? 'change' : 'input';
+                firstInvalidElement.addEventListener(eventType, () => {
+                    firstInvalidElement.classList.remove('invalid-input');
+                    // Optionally, if it becomes valid, one could hide the modal, but that's more complex.
+                }, { once: true });
+        
+                showInfoModalWithFlag("Missing or Invalid Information", message);
+                return false;
+            }
+        
+            return true; // All validated inputs in the step are valid
+        };
         const generateAiPrompts=(data)=>{ console.warn("generateAiPrompts function not implemented."); /* ... Actual implementation needed ... */ return { prompt1: "Prompt 1 not generated.", prompt2: "Prompt 2 not generated." }; /* Placeholder */ };
         const generateSummary=()=>{ console.warn("generateSummary function not implemented."); /* ... Actual implementation needed ... */ if(summaryContentDiv) summaryContentDiv.innerHTML = "<p>Summary generation not implemented.</p>"; };
         const resetForm=()=>{ console.warn("resetForm function not implemented."); /* ... Actual implementation needed ... */};
