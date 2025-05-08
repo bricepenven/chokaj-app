@@ -443,7 +443,104 @@ try {
             return true; // All validated inputs in the step are valid
         };
         const generateAiPrompts=(data)=>{ console.warn("generateAiPrompts function not implemented."); /* ... Actual implementation needed ... */ return { prompt1: "Prompt 1 not generated.", prompt2: "Prompt 2 not generated." }; /* Placeholder */ };
-        const generateSummary=()=>{ console.warn("generateSummary function not implemented."); /* ... Actual implementation needed ... */ if(summaryContentDiv) summaryContentDiv.innerHTML = "<p>Summary generation not implemented.</p>"; };
+        const generateSummary = () => {
+            if (!summaryContentDiv) {
+                console.error("Summary content div not found.");
+                return;
+            }
+            console.log("Generating summary with formData:", formData);
+        
+            summaryContentDiv.innerHTML = ''; // Clear previous summary
+        
+            const createSummaryItem = (label, value, isHtml = false) => {
+                if (value === null || value === undefined || value === '' || (Array.isArray(value) && value.length === 0)) {
+                    return ''; // Don't display if value is empty
+                }
+                const p = document.createElement('p');
+                const strong = document.createElement('strong');
+                strong.textContent = `${label}: `;
+                p.appendChild(strong);
+                if (isHtml) {
+                    const span = document.createElement('span');
+                    span.innerHTML = value;
+                    p.appendChild(span);
+                } else {
+                    p.appendChild(document.createTextNode(String(value)));
+                }
+                return p;
+            };
+        
+            const appendIfExists = (element) => {
+                if (element && element.textContent.includes(':') && !element.textContent.endsWith(': ')) { // Basic check to see if value was added
+                    summaryContentDiv.appendChild(element);
+                }
+            };
+            
+            const currencyFormatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+
+            appendIfExists(createSummaryItem('Event Nickname', formData.projectName));
+            appendIfExists(createSummaryItem('Your Name', `${formData.firstName || ''} ${formData.lastName || ''}`.trim()));
+            if (formData.age) appendIfExists(createSummaryItem('Age', formData.age));
+            
+            if (formData.eventStartDateTime) {
+                const dateObj = new Date(formData.eventStartDateTime);
+                const formattedDateTime = !isNaN(dateObj.getTime()) ? 
+                    `${dateObj.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })} at ${dateObj.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: true })}`
+                    : 'Not specified';
+                appendIfExists(createSummaryItem('Event Date & Time', formattedDateTime));
+            }
+            
+            let durationDisplay = formData.eventDuration;
+            if (formData.eventDuration === 'Other' && formData.customDuration) {
+                durationDisplay = formData.customDuration;
+            }
+            appendIfExists(createSummaryItem('Approx. Duration', durationDisplay));
+
+            appendIfExists(createSummaryItem('Location', `${formData.city || ''}${formData.city && formData.country ? ', ' : ''}${formData.country || ''}`.trim()));
+            
+            let eventTypeDisplay = formData.eventType;
+            if (formData.eventType === 'Other' && formData.otherEventType) {
+                eventTypeDisplay = formData.otherEventType;
+            }
+            appendIfExists(createSummaryItem('Event Type', eventTypeDisplay));
+
+            let eventStyleDisplay = formData.eventStyle;
+            if (formData.eventStyle === 'Other' && formData.otherEventStyle) {
+                eventStyleDisplay = formData.otherEventStyle;
+            }
+            appendIfExists(createSummaryItem('Event Style/Theme', eventStyleDisplay));
+
+            if (formData.numPeople) appendIfExists(createSummaryItem('Number of People', formData.numPeople));
+            
+            appendIfExists(createSummaryItem('Catering Required', formData.foodNeeded === 'yes' ? 'Yes' : (formData.foodNeeded === 'no' ? 'No' : 'Not specified')));
+
+            if (formData.foodNeeded === 'yes') {
+                let foodStyleDisplay = formData.foodStyle;
+                if (formData.foodStyle === 'Other' && formData.otherFoodStyle) {
+                    foodStyleDisplay = formData.otherFoodStyle;
+                }
+                appendIfExists(createSummaryItem('Food Service Style', foodStyleDisplay));
+                if (formData.foodBudgetPerPerson !== null && formData.foodBudgetPerPerson !== undefined) {
+                     appendIfExists(createSummaryItem('Food Budget per Person', currencyFormatter.format(formData.foodBudgetPerPerson)));
+                }
+            }
+
+            if (formData.budget !== null && formData.budget !== undefined) {
+                appendIfExists(createSummaryItem('Total Event Budget', currencyFormatter.format(formData.budget)));
+            }
+
+            if (formData.inspirationNotes) {
+                appendIfExists(createSummaryItem('Inspiration Notes', formData.inspirationNotes));
+            }
+            if (formData.inspirationPhotosInfo && formData.inspirationPhotosInfo.length > 0) {
+                const photoNames = formData.inspirationPhotosInfo.map(photo => photo.name).join(', ');
+                appendIfExists(createSummaryItem('Inspiration Photo(s)', photoNames));
+            }
+
+            if (summaryContentDiv.children.length === 0) {
+                summaryContentDiv.innerHTML = '<p>No details provided yet, or an error occurred generating the summary.</p>';
+            }
+        };
         const resetForm=()=>{ console.warn("resetForm function not implemented."); /* ... Actual implementation needed ... */};
         // ========================================================================
         // END OF TODO SECTION
