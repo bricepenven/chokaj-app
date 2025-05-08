@@ -332,7 +332,10 @@ try {
             let firstInvalidElement = null;
         
             // Clear previous invalid states for the current step
-            stepElement.querySelectorAll('.invalid-input').forEach(el => el.classList.remove('invalid-input'));
+            stepElement.querySelectorAll('.invalid-input').forEach(el => {
+                el.classList.remove('invalid-input');
+                el.title = ''; // Clear previous tooltip
+            });
         
             for (const input of inputsToValidate) {
                 // `checkValidity()` respects the `required` attribute/property,
@@ -364,15 +367,17 @@ try {
                 }
                 
                 firstInvalidElement.classList.add('invalid-input');
+                firstInvalidElement.title = message; // Set tooltip message
                 
-                // Auto-remove class on interaction
+                // Auto-remove class and tooltip on interaction
                 const eventType = (firstInvalidElement.tagName === 'SELECT' || ['radio', 'checkbox'].includes(firstInvalidElement.type)) ? 'change' : 'input';
                 firstInvalidElement.addEventListener(eventType, () => {
                     firstInvalidElement.classList.remove('invalid-input');
+                    firstInvalidElement.title = ''; // Clear tooltip
                     // Optionally, if it becomes valid, one could hide the modal, but that's more complex.
                 }, { once: true });
         
-                showInfoModalWithFlag("Missing or Invalid Information", message);
+                // showInfoModalWithFlag("Missing or Invalid Information", message); // Modal removed
                 return false;
             }
         
@@ -512,7 +517,7 @@ try {
             console.log("Form submitted. Final Data:", formData);
             collectStepData(currentStep); // Collect final step data
             if (!validateStepWithFlag(currentStep)) {
-                 showInfoModalWithFlag("Incomplete Information", "Please ensure all required fields in the final step are filled.");
+                 // showInfoModalWithFlag("Incomplete Information", "Please ensure all required fields in the final step are filled."); // Modal removed, validateStepWithFlag handles UI
                  return;
             }
 

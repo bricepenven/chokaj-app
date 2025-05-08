@@ -8,6 +8,16 @@ input[type=text],input[type=number],input[type=date],select,textarea,input[type=
 input[type=date] { color-scheme: dark; } input.flatpickr-input { cursor: pointer; background-color:#4a3f35 !important; } input[type=date].flatpickr-hidden { display: none; }
 textarea{min-height:80px; line-height:1.5;} input[type=file]{color:#b0a095; padding:8px 10px} input[type=text]::placeholder,input[type=number]::placeholder,textarea::placeholder, input[type=date]::placeholder {color:#9a8f85;}
 input:focus, select:focus, textarea:focus, .flatpickr-input:focus { outline:none !important; border-color:#b08f5a !important; box-shadow:0 0 0 3px rgba(176, 143, 90, 0.3) !important; }
+
+/* Styles for invalid input fields */
+input.invalid-input,
+select.invalid-input,
+textarea.invalid-input {
+    border-color: #e74c3c !important; /* Distinct red color */
+    box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.3) !important; /* Optional: a subtle glow */
+}
+/* Native browser tooltips (from title attribute) will be used. Custom tooltip styling would require more CSS. */
+
 select{ appearance:none; background-image:url('data:image/svg+xml;charset=US-ASCII,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%23b0a095" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>'); background-repeat:no-repeat; background-position:right 15px center; background-size:16px 12px; padding-right:40px; } select option{background-color:#4a3f35; color:#f0e5d8;}
 button{display:inline-block; width:auto; min-width:120px; padding:12px 20px; color:#fff; border:none; border-radius:6px; font-size:1em; font-weight:600; cursor:pointer; transition:background-color .3s ease,transform .1s ease; margin-top:15px; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);}
 button.next-btn{background-color:#8a6f45; float:right} button.next-btn:hover{background-color:#a08f65;} button.next-btn:active{background-color:#7a5f35; transform:translateY(1px)}
