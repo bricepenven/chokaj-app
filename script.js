@@ -216,9 +216,68 @@ try {
         // ========================================================================
         // TODO: IMPLEMENT REMAINING MISSING HELPER FUNCTIONS HERE
         // ========================================================================
-        const renderImagePreviews=()=>{ console.warn("renderImagePreviews function not implemented."); /* ... Actual implementation needed ... */};
-        const handleRemoveImage=(event)=>{ console.warn("handleRemoveImage function not implemented."); /* ... Actual implementation needed ... */};
-        const handleFileSelect=(event)=>{ console.warn("handleFileSelect function not implemented."); /* ... Actual implementation needed ... */};
+        const handleFileSelect = (event) => {
+            const files = event.target.files;
+            if (!inspirationPreview) {
+                console.error("Inspiration preview container not found.");
+                return;
+            }
+        
+            inspirationPreview.innerHTML = ''; // Clear any existing preview
+            selectedInspirationFiles = [];    // Clear stored files array
+        
+            if (files.length > 0) {
+                const file = files[0]; // We only care about the first file due to MAX_INSPIRATION_FILES = 1
+        
+                if (!file.type.startsWith('image/')) {
+                    showInfoModalWithFlag("Invalid File Type", "Please select an image file (e.g., JPG, PNG, GIF).");
+                    if (inspirationPhotosInput) inspirationPhotosInput.value = null; // Reset file input
+                    return;
+                }
+        
+                // Add to selected files array
+                selectedInspirationFiles.push(file);
+        
+                // Create preview element
+                const previewItem = document.createElement('div');
+                previewItem.className = 'preview-item';
+        
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(file);
+                img.alt = "Inspiration preview"; // Accessibility
+                img.onload = () => {
+                    URL.revokeObjectURL(img.src); // Free memory once loaded
+                };
+        
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button'; // Prevent form submission
+                removeBtn.className = 'remove-img-btn';
+                removeBtn.innerHTML = '&times;'; // '×' character
+                removeBtn.setAttribute('aria-label', 'Remove image'); // Accessibility
+        
+                previewItem.appendChild(img);
+                previewItem.appendChild(removeBtn);
+                inspirationPreview.appendChild(previewItem);
+                console.log("Inspiration image preview added:", file.name);
+            } else {
+                console.log("No file selected or selection cleared by browser.");
+            }
+        };
+
+        const handleRemoveImage = (event) => {
+            if (event.target.classList.contains('remove-img-btn')) {
+                const previewItem = event.target.closest('.preview-item');
+                if (previewItem) {
+                    previewItem.remove();
+                }
+                selectedInspirationFiles = []; // Clear the stored file
+                if (inspirationPhotosInput) {
+                    inspirationPhotosInput.value = null; // Reset file input to allow re-selection
+                }
+                console.log("Inspiration image removed via handleRemoveImage.");
+            }
+        };
+
         function debounce(func,wait){ let timeout; return function executedFunction(...args) { const later = () => { clearTimeout(timeout); func(...args); }; clearTimeout(timeout); timeout = setTimeout(later, wait); }; }
         const fetchSuggestions=async(query)=>{ console.warn("fetchSuggestions function not implemented."); /* ... Actual implementation needed ... */ return []; };
         const displaySuggestions=(suggestionsData)=>{ console.warn("displaySuggestions function not implemented."); /* ... Actual implementation needed ... */};
