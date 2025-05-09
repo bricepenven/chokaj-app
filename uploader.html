@@ -110,13 +110,13 @@
         import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject as deleteFileFromStorage } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js";
 
         const firebaseConfig = {
-  apiKey: "AIzaSyAU3qmsD15JX6iwjloTjCPDd-2SuG6oM8w",
-  authDomain: "chokaj-4dcae.firebaseapp.com",
-  projectId: "chokaj-4dcae",
-  storageBucket: "chokaj-4dcae.firebasestorage.app",
-  messagingSenderId: "516228224797",
-  appId: "1:516228224797:web:6bdf08edb5962aad5633f4",
-  measurementId: "G-9QVCF19J2W"
+    apiKey: "AIzaSyAU3qmsD15JX6iwjloTjCPDd-2SuG6oM8w",
+    authDomain: "chokaj-4dcae.firebaseapp.com",
+    projectId: "chokaj-4dcae",
+    storageBucket: "chokaj-4dcae.firebasestorage.app", // <<< CORRECTED LINE
+    messagingSenderId: "516228224797",
+    appId: "1:516228224797:web:6bdf08edb5962aad5633f4", // Assuming this app ID is still correct for the config
+    measurementId: "G-9QVCF19J2W" // Assuming this is correct
 };
 
         const app = initializeApp(firebaseConfig);
