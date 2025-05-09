@@ -447,52 +447,71 @@
         }
 
         function showMediaDetails(data) {
-    modalTitle.textContent = data.originalFileName || "Media Details";
+            modalTitle.textContent = data.originalFileName || "Media Details";
 
-    // Handle video
-    if (data.contentType?.startsWith('video/') && data.gcsPublicUrlForTwelveLabs) {
-        modalVideoPlayerContainer.style.display = 'block';
-        modalVideoPlayer.src = data.gcsPublicUrlForTwelveLabs;
-        modalVideoPlayer.load();
-    } else {
-        modalVideoPlayerContainer.style.display = 'none';
-        modalVideoPlayer.src = '';
-    }
-
-    // Create metadata sections
-    let html = `<h4>General Info:</h4><ul>`;
-    for (const key of ['originalFileName', 'contentType', 'size', 'status']) {
-        if (data[key]) html += `<li><strong>${key}:</strong> ${data[key]}</li>`;
-    }
-    html += `</ul><h4>Upload Info:</h4><ul>`;
-    for (const key of ['uploadInitiatedTimestamp', 'gcsUploadCompleteTimestamp', 'gcsPath', 'firebaseStorageDownloadUrl']) {
-        if (data[key]) html += `<li><strong>${key}:</strong> ${data[key]}</li>`;
-    }
-
-    html += `</ul>`;
-
-    // Highlights section
-    if (data.highlights_goals?.length) {
-        html += `<h4>Highlights (Goals):</h4><div style="display: flex; flex-wrap: wrap; gap: 12px;">`;
-        data.highlights_goals.forEach((goal, index) => {
-            const g = goal.mapValue.fields;
-            const start = g.start.doubleValue;
-            const thumb = g.thumbnail_url?.stringValue;
-            const transcription = g.transcription?.stringValue || '';
-            if (thumb && start !== undefined) {
-                html += `
-                    <div style="width:140px; cursor:pointer;" onclick="modalVideoPlayer.currentTime = ${start}; modalVideoPlayer.pause();">
-                        <img src="${thumb}" style="width:100%; border-radius:4px; border:1px solid #444;" />
-                        <p style="font-size: 0.75em; margin-top: 4px;">${transcription.slice(0, 60)}...</p>
-                    </div>`;
+            // Handle video
+            if (data.contentType?.startsWith('video/') && data.gcsPublicUrlForTwelveLabs) {
+                modalVideoPlayerContainer.style.display = 'block';
+                modalVideoPlayer.src = data.gcsPublicUrlForTwelveLabs;
+                modalVideoPlayer.load(); // Good practice to call load() after changing src
+            } else {
+                modalVideoPlayerContainer.style.display = 'none';
+                modalVideoPlayer.src = ''; // Clear src if no video
             }
-        });
-        html += `</div>`;
-    }
 
-    modalMetadata.innerHTML = html;
-    mediaModal.style.display = "flex";
-}
+            // Create metadata sections
+            let html = `<h4>General Info:</h4><ul>`;
+            // Displaying key-value pairs more robustly
+            const generalInfoKeys = ['originalFileName', 'contentType', 'size', 'status'];
+            generalInfoKeys.forEach(key => {
+                if (data[key] !== undefined && data[key] !== null) {
+                     html += `<li><strong>${key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}:</strong> ${data[key]}</li>`;
+                }
+            });
+            html += `</ul><h4>Upload Info:</h4><ul>`;
+            const uploadInfoKeys = ['uploadInitiatedTimestamp', 'gcsUploadCompleteTimestamp', 'gcsPath', 'firebaseStorageDownloadUrl', 'gcsPublicUrlForTwelveLabs'];
+            uploadInfoKeys.forEach(key => {
+                if (data[key] !== undefined && data[key] !== null) {
+                    let value = data[key];
+                    if (key.includes('Timestamp') && value && typeof value.seconds === 'number') {
+                        value = new Date(value.seconds * 1000).toLocaleString();
+                    }
+                    html += `<li><strong>${key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}:</strong> ${value}</li>`;
+                }
+            });
+            html += `</ul>`;
+
+            // Highlights section - CORRECTED PART
+            if (data.highlights_goals && Array.isArray(data.highlights_goals) && data.highlights_goals.length > 0) {
+                html += `<h4>Highlights (Goals):</h4><div style="display: flex; flex-wrap: wrap; gap: 12px;">`;
+                data.highlights_goals.forEach((goal, index) => {
+                    // Ensure 'goal' is a valid object
+                    if (goal && typeof goal === 'object') {
+                        // Direct access to properties, assuming 'goal' is a plain JS object
+                        const start = goal.start; // e.g., 10.5 (number)
+                        const thumb = goal.thumbnail_url; // e.g., "http://..." (string)
+                        const transcription = goal.transcription || ''; // e.g., "Goal scored" (string)
+
+                        // Check if essential properties exist and have expected types
+                        if (typeof thumb === 'string' && thumb.trim() !== '' && typeof start === 'number' && !isNaN(start)) {
+                            html += `
+                                <div style="width:140px; cursor:pointer;" onclick="if(document.getElementById('modalVideoPlayer')) { document.getElementById('modalVideoPlayer').currentTime = ${start}; document.getElementById('modalVideoPlayer').play(); }">
+                                    <img src="${thumb}" style="width:100%; border-radius:4px; border:1px solid #444;" alt="Highlight ${index + 1} thumbnail"/>
+                                    <p style="font-size: 0.75em; margin-top: 4px; color: #ccc; word-wrap: break-word;">${transcription.slice(0, 60)}${transcription.length > 60 ? '...' : ''}</p>
+                                </div>`;
+                        } else {
+                            console.warn("Skipping highlight item due to missing/invalid 'thumbnail_url' or 'start'. Goal data:", goal);
+                        }
+                    } else {
+                        console.warn("Skipping highlight item because it's not a valid object:", goal);
+                    }
+                });
+                html += `</div>`;
+            }
+
+            modalMetadata.innerHTML = html;
+            mediaModal.style.display = "flex";
+        }
     </script>
 </body>
 </html>
