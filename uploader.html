@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Media Hub</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: #1a1a1a; color: #e0e0e0; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; padding: 20px; box-sizing: border-box; }
-        .container { background-color: #2c2c2c; padding: 20px 25px; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.5); width: 100%; max-width: 900px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: #1e1e1e; color: #e0e0e0; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; padding: 20px; box-sizing: border-box; }
+        .container { background-color: #2d2d2d; padding: 20px 25px; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.5); width: 100%; max-width: 900px; }
         
         .tab-buttons { display: flex; border-bottom: 1px solid #4a4a4a; margin-bottom: 25px; }
         .tab-button { padding: 12px 22px; cursor: pointer; background-color: transparent; border: none; color: #b0b0b0; font-size: 1.1em; border-bottom: 3px solid transparent; margin-right: 10px; transition: color 0.2s, border-bottom-color 0.2s; }
@@ -109,19 +109,20 @@
         import { getFirestore, collection, doc, setDoc, serverTimestamp, getDocs, query, orderBy, limit, deleteDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
         import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject as deleteFileFromStorage } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js";
 
+        // YOUR WEB APP'S FIREBASE CONFIGURATION - ENSURE THIS IS CORRECT
         const firebaseConfig = {
-    apiKey: "AIzaSyAU3qmsD15JX6iwjloTjCPDd-2SuG6oM8w",
-    authDomain: "chokaj-4dcae.firebaseapp.com",
-    projectId: "chokaj-4dcae",
-    storageBucket: "chokaj-4dcae.firebasestorage.app", // <<< CORRECTED LINE
-    messagingSenderId: "516228224797",
-    appId: "1:516228224797:web:6bdf08edb5962aad5633f4", // Assuming this app ID is still correct for the config
-    measurementId: "G-9QVCF19J2W" // Assuming this is correct
-};
+            apiKey: "AIzaSyAU3qmsD15JX6iwjloTjCPDd-2SuG6oM8w",
+            authDomain: "chokaj-4dcae.firebaseapp.com",
+            projectId: "chokaj-4dcae",
+            storageBucket: "chokaj-4dcae.firebasestorage.app", // <<<< CRITICAL: THIS IS YOUR TARGET BUCKET
+            messagingSenderId: "516228224797",
+            appId: "1:516228224797:web:6bdf08edb5962aad5633f4",
+            measurementId: "G-9QVCF19J2W"
+        };
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        const storage = getStorage(app);
+        const storage = getStorage(app); // This points to the bucket in firebaseConfig.storageBucket
 
         const tabButtons = document.querySelectorAll('.tab-button');
         const tabContents = document.querySelectorAll('.tab-content');
@@ -151,7 +152,7 @@
 
         modalCloseButton.onclick = () => {
             modalVideoPlayer.pause();
-            modalVideoPlayer.src = ''; // Clear src to stop video download/buffering
+            modalVideoPlayer.src = ''; 
             mediaModal.style.display = "none";
         }
         window.onclick = (event) => {
@@ -277,9 +278,8 @@
 
                 try {
                     statusElement.textContent = 'Creating DB entry...';
-                    const safeDocId = gcsFileName.replace(/\//g, '__'); // Firestore IDs cannot contain '/'
+                    const safeDocId = gcsFileName.replace(/\//g, '__');
                     const fileDocRef = doc(db, "mediaProcessingQueue", safeDocId); 
-                    
                     await setDoc(fileDocRef, {
                         originalFileName: originalFilename, gcsBucket: firebaseConfig.storageBucket,
                         gcsPath: gcsFileName, status: "uploading_to_gcs",
@@ -288,7 +288,7 @@
                     });
 
                     statusElement.textContent = 'Uploading...';
-                    const storageRef = ref(storage, gcsFileName); // Points to firebaseConfig.storageBucket
+                    const storageRef = ref(storage, gcsFileName); // Uploads to firebaseConfig.storageBucket
                     const uploadTask = uploadBytesResumable(storageRef, file);
 
                     uploadTask.on('state_changed',
@@ -308,13 +308,13 @@
                             statusElement.textContent = 'Upload Complete! Awaiting n8n...'; statusElement.style.color = '#2ecc71';
                             progressBarElement.style.width = '100%';
                             revokePreviewUrl();
-                            const gcsPublicUrl = `https://storage.googleapis.com/${firebaseConfig.storageBucket}/${gcsFileName}`; // URL n8n will use
+                            const gcsPublicUrl = `https://storage.googleapis.com/${firebaseConfig.storageBucket}/${gcsFileName}`;
                             await setDoc(fileDocRef, { 
                                 status: "uploaded_to_gcs_pending_twelvelabs", gcsPublicUrlForTwelveLabs: gcsPublicUrl, 
                                 firebaseStorageDownloadUrl: firebaseStorageDownloadURL, gcsUploadCompleteTimestamp: serverTimestamp()
                             }, { merge: true });
                             if (document.getElementById('databaseTab').classList.contains('active')) {
-                                loadDatabaseEntries(); // Refresh DB view if it's active
+                                loadDatabaseEntries();
                             }
                         }
                     );
@@ -335,7 +335,7 @@
         async function loadDatabaseEntries() {
             dbFileListContainer.innerHTML = '<p class="empty-list-placeholder">Loading entries...</p>';
             try {
-                const q = query(collection(db, "mediaProcessingQueue"), orderBy("uploadInitiatedTimestamp", "desc"), limit(25)); // Limit results
+                const q = query(collection(db, "mediaProcessingQueue"), orderBy("uploadInitiatedTimestamp", "desc"), limit(25));
                 const querySnapshot = await getDocs(q);
                 if (querySnapshot.empty) {
                     dbFileListContainer.innerHTML = '<p class="empty-list-placeholder">No media entries found.</p>';
@@ -354,20 +354,20 @@
         function renderDbEntry(docId, data) {
             const itemDiv = document.createElement('div');
             itemDiv.classList.add('db-item');
-            itemDiv.id = `db-${docId}`;
+            itemDiv.id = `dbItem-${docId}`; // Ensure unique ID for the DB item div
             
             const previewDiv = document.createElement('div');
             previewDiv.classList.add('db-item-preview');
-            previewDiv.onclick = () => showMediaDetails(data); // Make preview clickable too
+            previewDiv.onclick = () => showMediaDetails(data); 
 
             if (data.gcsPublicUrlForTwelveLabs && data.contentType) {
                 if (data.contentType.startsWith('image/')) {
                     const img = document.createElement('img');
-                    img.src = data.gcsPublicUrlForTwelveLabs; // Assumes public GCS URL for preview
+                    img.src = data.gcsPublicUrlForTwelveLabs; 
                     previewDiv.appendChild(img);
                 } else if (data.contentType.startsWith('video/')) {
                     const vid = document.createElement('video');
-                    vid.src = data.gcsPublicUrlForTwelveLabs; // Assumes public GCS URL for preview
+                    vid.src = data.gcsPublicUrlForTwelveLabs; 
                     vid.muted = true; 
                     vid.onloadedmetadata = () => { if (vid.duration > 1) vid.currentTime = 1; };
                     previewDiv.appendChild(vid);
@@ -381,7 +381,7 @@
 
             const infoDiv = document.createElement('div');
             infoDiv.classList.add('db-item-info');
-            infoDiv.onclick = () => showMediaDetails(data); // Make info clickable
+            infoDiv.onclick = () => showMediaDetails(data); 
             infoDiv.innerHTML = `
                 <p><strong>${data.originalFileName || 'N/A'}</strong></p>
                 <p style="font-size:0.75em;">GCS: ${data.gcsPath || 'N/A'}</p>
@@ -396,21 +396,40 @@
             removeDbButton.onclick = async (event) => {
                 event.stopPropagation(); 
                 if (confirm(`Are you sure you want to remove '${data.originalFileName}'? This will delete the database entry and the file from Cloud Storage.`)) {
+                    const button = event.target; // Get the button element
+                    button.disabled = true;
+                    button.textContent = 'Deleting...';
+                    
                     try {
-                        statusMessageSpan.textContent = 'Deleting...'; // Assuming statusMessageSpan is defined or find a way to show status
+                        console.log(`Attempting to delete Firestore document: mediaProcessingQueue/${docId}`);
                         await deleteDoc(doc(db, "mediaProcessingQueue", docId));
+                        console.log(`Document ${docId} successfully deleted from Firestore.`);
+
                         if (data.gcsPath) {
+                            console.log(`Attempting to delete GCS file: ${data.gcsPath}`);
                             const storageFileRef = ref(storage, data.gcsPath);
                             await deleteFileFromStorage(storageFileRef);
+                            console.log(`File ${data.gcsPath} successfully deleted from GCS.`);
                         }
-                        itemDiv.remove(); 
+                        
+                        const uiItemToRemove = document.getElementById(`dbItem-${docId}`);
+                        if (uiItemToRemove) uiItemToRemove.remove(); 
+
                         if (dbFileListContainer.children.length === 0) {
                              dbFileListContainer.innerHTML = '<p class="empty-list-placeholder">No media entries found.</p>';
                         }
                     } catch (err) {
                         console.error("Error removing entry:", err);
                         alert(`Failed to remove entry: ${err.message}`);
-                        // statusMessageSpan.textContent = 'Delete Failed'; // Update status if applicable
+                        button.textContent = 'Delete Failed'; 
+                        button.style.backgroundColor = '#dc3545'; 
+                        setTimeout(() => {
+                           if(document.getElementById(`dbItem-${docId}`)) { 
+                             button.disabled = false;
+                             button.textContent = 'Delete';
+                             button.style.backgroundColor = '#c82333'; 
+                           }
+                        }, 3000);
                     }
                 }
             };
@@ -420,26 +439,26 @@
         
         function getStatusColor(status) {
             if (!status) return '#bbb';
-            if (status.includes('failed')) return '#e74c3c';
-            if (status.includes('complete') || status.includes('pending_twelvelabs')) return '#2ecc71';
-            if (status.includes('uploading')) return '#3498db';
-            return '#bbb';
+            status = status.toLowerCase();
+            if (status.includes('failed')) return '#e74c3c'; // red
+            if (status.includes('complete') || status.includes('pending_twelvelabs') || status.includes('uploaded_to_gcs')) return '#2ecc71'; // green
+            if (status.includes('uploading') || status.includes('processing')) return '#3498db'; // blue
+            return '#bbb'; // default
         }
 
         function showMediaDetails(data) {
             modalTitle.textContent = data.originalFileName || "Media Details";
             if (data.contentType && data.contentType.startsWith('video/') && data.gcsPublicUrlForTwelveLabs) {
                 modalVideoPlayerContainer.style.display = 'block';
-                modalVideoPlayer.src = data.gcsPublicUrlForTwelveLabs; // Assumes public GCS URL
+                modalVideoPlayer.src = data.gcsPublicUrlForTwelveLabs; 
                 modalVideoPlayer.load();
             } else {
                 modalVideoPlayerContainer.style.display = 'none';
                 modalVideoPlayer.src = '';
             }
-            // Format timestamps if they exist
             const displayData = { ...data };
             for (const key in displayData) {
-                if (displayData[key] && typeof displayData[key] === 'object' && displayData[key].hasOwnProperty('seconds')) {
+                if (displayData[key] && typeof displayData[key] === 'object' && displayData[key].hasOwnProperty('seconds') && displayData[key].hasOwnProperty('nanoseconds')) {
                     displayData[key] = new Date(displayData[key].seconds * 1000).toLocaleString();
                 }
             }
