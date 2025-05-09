@@ -58,43 +58,85 @@
         .modal-content { background-color: #383838; margin: auto; padding: 25px; border: 1px solid #505050; width: 90%; max-width: 750px; border-radius: 10px; position: relative; box-shadow: 0 5px 20px rgba(0,0,0,0.4); }
         .modal-close { color: #ccc; float: right; font-size: 30px; font-weight: bold; position: absolute; top: 10px; right: 20px;}
         .modal-close:hover, .modal-close:focus { color: #fff; text-decoration: none; cursor: pointer; }
-        .modal-content video { width: 100%; max-height: 75vh; border-radius: 6px; background-color: #000; }
-        .modal-content h3 { margin-top:0; color: #fff; border-bottom: 1px solid #555; padding-bottom: 10px; margin-bottom: 15px; }
-        .modal-content h4 { color: #ddd; margin-top: 20px; margin-bottom: 8px; }
-        .modal-content pre { background-color: #222222; padding: 12px; border-radius: 6px; color: #ccc; max-height: 250px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word; font-size: 0.9em; border: 1px solid #484848;}
-        @keyframes fadeInModal { from {opacity:0; transform: scale(0.95);} to {opacity:1; transform: scale(1);} }
-                /* ... existing styles ... */
-
-                .modal-download-button {
-            display: inline-block;
+        
+        #modalTitle {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #555;
+            padding-bottom: 10px;
+        }
+        .modal-title-text-span {
+            margin-right: 10px;
+            flex-grow: 1;
+            word-break: break-all;
+            font-size: 1.2em; /* Match h3 original styling */
+            color: #fff;
+            font-weight: normal;
+        }
+        .modal-title-edit-button {
+            background: none;
+            border: none;
+            color: #007bff;
+            cursor: pointer;
+            font-size: 1em;
+            padding: 0 5px;
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+        .modal-title-edit-button:hover {
+            color: #0056b3;
+        }
+        .modal-title-input-field {
+            font-size: 1.2em; /* Match h3 */
+            font-weight: normal; /* Match h3 */
+            font-family: inherit;
+            padding: 6px 10px;
+            border: 1px solid #505050;
+            border-radius: 4px;
+            background-color: #2d2d2d;
+            color: #e0e0e0;
+            flex-grow: 1;
+            margin-right: 10px;
+            min-width: 200px;
+        }
+        .modal-action-button {
             padding: 6px 12px;
             background-color: #007bff;
-            color: white !important; /* !important to override potential <a> styling */
-            text-decoration: none;
-            border-radius: 4px;
-            font-size: 0.85em;
+            color: white;
             border: none;
+            border-radius: 4px;
             cursor: pointer;
-            transition: background-color 0.2s ease-in-out;
+            font-size: 0.9em;
+            margin-left: 8px;
+            transition: background-color 0.2s;
+            flex-shrink: 0;
         }
-        .modal-download-button:hover {
+        .modal-action-button:hover {
             background-color: #0056b3;
-            text-decoration: none;
         }
-        .modal-content ul { /* Add some styling for the lists in the modal */
-            list-style-type: none;
-            padding-left: 0;
+        .modal-action-button:disabled {
+            background-color: #555;
+            cursor: not-allowed;
         }
-        .modal-content ul li {
-            padding: 6px 0;
-            border-bottom: 1px solid #4a4a4a;
+        .modal-action-button.cancel {
+            background-color: #6c757d;
         }
-        .modal-content ul li:last-child {
-            border-bottom: none;
+        .modal-action-button.cancel:hover {
+            background-color: #5a6268;
         }
-        .modal-content ul li strong {
-            color: #e0e0e0;
-        }
+
+        .modal-content video { width: 100%; max-height: 75vh; border-radius: 6px; background-color: #000; }
+        .modal-content h4 { color: #ddd; margin-top: 20px; margin-bottom: 8px; }
+        .modal-content pre { background-color: #222222; padding: 12px; border-radius: 6px; color: #ccc; max-height: 250px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word; font-size: 0.9em; border: 1px solid #484848;}
+        .modal-download-button { display: inline-block; padding: 6px 12px; background-color: #007bff; color: white !important; text-decoration: none; border-radius: 4px; font-size: 0.85em; border: none; cursor: pointer; transition: background-color 0.2s ease-in-out; }
+        .modal-download-button:hover { background-color: #0056b3; text-decoration: none; }
+        .modal-content ul { list-style-type: none; padding-left: 0; }
+        .modal-content ul li { padding: 6px 0; border-bottom: 1px solid #4a4a4a; }
+        .modal-content ul li:last-child { border-bottom: none; }
+        .modal-content ul li strong { color: #e0e0e0; }
+        @keyframes fadeInModal { from {opacity:0; transform: scale(0.95);} to {opacity:1; transform: scale(1);} }
     </style>
 </head>
 <body>
@@ -126,35 +168,36 @@
 
     <div id="mediaModal" class="modal">
         <div class="modal-content">
-            <span class="modal-close" id="modalCloseButton">&times;</span>
-            <h3 id="modalTitle">Media Details</h3>
+            <span class="modal-close" id="modalCloseButton">×</span>
+            <!-- modalTitle will now be dynamically populated with edit controls -->
+            <div id="modalTitleContainer">
+                <h3 id="modalTitle">Media Details</h3> <!-- This h3 is a container for dynamic content -->
+            </div>
             <div id="modalVideoPlayerContainer" style="display:none; margin-bottom:15px;">
                 <video id="modalVideoPlayer" controls muted width="100%"></video>
             </div>
-            <h4>All Metadata:</h4>
-            <pre id="modalMetadata"></pre>
+
+            <!-- This div will hold the nice lists and highlights -->
+            <div id="modalStructuredMetadataContainer">
+                <!-- JS will populate this area -->
+            </div>
+
+            <!-- This h4 and pre are for the raw JSON dump -->
+            <h4>All Raw Metadata:</h4>
+            <pre id="modalRawMetadataJson"></pre>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-        import { getFirestore, collection, doc, setDoc, serverTimestamp, getDocs, query, orderBy, limit, deleteDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import { getFirestore, collection, doc, setDoc, serverTimestamp, getDocs, query, orderBy, limit, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
         import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject as deleteFileFromStorage } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js";
-        // Helper function to format bytes
-        function formatBytes(bytes, decimals = 2) {
-            if (!+bytes || bytes === 0) return '0 Bytes'; // Handles 0, null, undefined, or non-numeric
-            const k = 1024;
-            const dm = decimals < 0 ? 0 : decimals;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
-        }
-        // YOUR WEB APP'S FIREBASE CONFIGURATION - ENSURE THIS IS CORRECT
+
         const firebaseConfig = {
             apiKey: "AIzaSyAU3qmsD15JX6iwjloTjCPDd-2SuG6oM8w",
             authDomain: "chokaj-4dcae.firebaseapp.com",
             projectId: "chokaj-4dcae",
-            storageBucket: "chokaj-4dcae.firebasestorage.app", // <<<< CRITICAL: THIS IS YOUR TARGET BUCKET
+            storageBucket: "chokaj-4dcae.firebasestorage.app",
             messagingSenderId: "516228224797",
             appId: "1:516228224797:web:6bdf08edb5962aad5633f4",
             measurementId: "G-9QVCF19J2W"
@@ -162,16 +205,18 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        const storage = getStorage(app); // This points to the bucket in firebaseConfig.storageBucket
+        const storage = getStorage(app);
 
         const tabButtons = document.querySelectorAll('.tab-button');
         const tabContents = document.querySelectorAll('.tab-content');
         const mediaModal = document.getElementById('mediaModal');
         const modalCloseButton = document.getElementById('modalCloseButton');
-        const modalTitle = document.getElementById('modalTitle');
+        const modalTitleElement = document.getElementById('modalTitle'); // This is the h3 inside modalTitleContainer
         const modalVideoPlayerContainer = document.getElementById('modalVideoPlayerContainer');
         const modalVideoPlayer = document.getElementById('modalVideoPlayer');
-        const modalMetadata = document.getElementById('modalMetadata');
+        const modalStructuredMetadataContainer = document.getElementById('modalStructuredMetadataContainer');
+        const modalRawMetadataJsonPre = document.getElementById('modalRawMetadataJson');
+
 
         tabButtons.forEach(button => {
             button.addEventListener('click', () => {
@@ -328,7 +373,7 @@
                     });
 
                     statusElement.textContent = 'Uploading...';
-                    const storageRef = ref(storage, gcsFileName); // Uploads to firebaseConfig.storageBucket
+                    const storageRef = ref(storage, gcsFileName);
                     const uploadTask = uploadBytesResumable(storageRef, file);
 
                     uploadTask.on('state_changed',
@@ -394,11 +439,11 @@
         function renderDbEntry(docId, data) {
             const itemDiv = document.createElement('div');
             itemDiv.classList.add('db-item');
-            itemDiv.id = `dbItem-${docId}`; // Ensure unique ID for the DB item div
+            itemDiv.id = `dbItem-${docId}`;
             
             const previewDiv = document.createElement('div');
             previewDiv.classList.add('db-item-preview');
-            previewDiv.onclick = () => showMediaDetails(data); 
+            previewDiv.onclick = () => showMediaDetails(docId, data); // Pass docId FIRST
 
             if (data.gcsPublicUrlForTwelveLabs && data.contentType) {
                 if (data.contentType.startsWith('image/')) {
@@ -421,7 +466,7 @@
 
             const infoDiv = document.createElement('div');
             infoDiv.classList.add('db-item-info');
-            infoDiv.onclick = () => showMediaDetails(data); 
+            infoDiv.onclick = () => showMediaDetails(docId, data); // Pass docId FIRST
             infoDiv.innerHTML = `
                 <p><strong>${data.originalFileName || 'N/A'}</strong></p>
                 <p style="font-size:0.75em;">GCS: ${data.gcsPath || 'N/A'}</p>
@@ -436,25 +481,18 @@
             removeDbButton.onclick = async (event) => {
                 event.stopPropagation(); 
                 if (confirm(`Are you sure you want to remove '${data.originalFileName}'? This will delete the database entry and the file from Cloud Storage.`)) {
-                    const button = event.target; // Get the button element
+                    const button = event.target;
                     button.disabled = true;
                     button.textContent = 'Deleting...';
                     
                     try {
-                        console.log(`Attempting to delete Firestore document: mediaProcessingQueue/${docId}`);
                         await deleteDoc(doc(db, "mediaProcessingQueue", docId));
-                        console.log(`Document ${docId} successfully deleted from Firestore.`);
-
                         if (data.gcsPath) {
-                            console.log(`Attempting to delete GCS file: ${data.gcsPath}`);
                             const storageFileRef = ref(storage, data.gcsPath);
                             await deleteFileFromStorage(storageFileRef);
-                            console.log(`File ${data.gcsPath} successfully deleted from GCS.`);
                         }
-                        
                         const uiItemToRemove = document.getElementById(`dbItem-${docId}`);
                         if (uiItemToRemove) uiItemToRemove.remove(); 
-
                         if (dbFileListContainer.children.length === 0) {
                              dbFileListContainer.innerHTML = '<p class="empty-list-placeholder">No media entries found.</p>';
                         }
@@ -467,7 +505,7 @@
                            if(document.getElementById(`dbItem-${docId}`)) { 
                              button.disabled = false;
                              button.textContent = 'Delete';
-                             button.style.backgroundColor = '#c82333'; 
+                             button.style.backgroundColor = '#d9534f'; 
                            }
                         }, 3000);
                     }
@@ -480,15 +518,84 @@
         function getStatusColor(status) {
             if (!status) return '#bbb';
             status = status.toLowerCase();
-            if (status.includes('failed')) return '#e74c3c'; // red
-            if (status.includes('complete') || status.includes('pending_twelvelabs') || status.includes('uploaded_to_gcs')) return '#2ecc71'; // green
-            if (status.includes('uploading') || status.includes('processing')) return '#3498db'; // blue
-            return '#bbb'; // default
+            if (status.includes('failed')) return '#e74c3c';
+            if (status.includes('complete') || status.includes('pending_twelvelabs') || status.includes('uploaded_to_gcs')) return '#2ecc71';
+            if (status.includes('uploading') || status.includes('processing')) return '#3498db';
+            return '#bbb';
         }
 
-        function showMediaDetails(data) {
-            modalTitle.textContent = data.originalFileName || "Media Details";
+        // Helper function to format bytes
+        function formatBytes(bytes, decimals = 2) {
+            if (!+bytes || bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+        }
 
+        // Helper function to build the structured part of the modal's metadata
+        function buildStructuredMetadataHtml(dataObject) {
+            let html = '';
+
+            const getDisplayValue = (key, value, fullData) => {
+                if (value === null || value === undefined) return 'N/A';
+                if (key === 'size' && typeof value === 'number') return formatBytes(value);
+                if ((key === 'firebaseStorageDownloadUrl' || key === 'gcsPublicUrlForTwelveLabs') && typeof value === 'string' && value.startsWith('http')) {
+                    const suggestedFilename = fullData.originalFileName || 'downloaded_file';
+                    return `<a href="${value}" download="${suggestedFilename}" target="_blank" rel="noopener noreferrer" class="modal-download-button">Download</a>`;
+                }
+                if (key.includes('Timestamp') && value && typeof value.seconds === 'number') {
+                    return new Date(value.seconds * 1000).toLocaleString();
+                }
+                return value;
+            };
+
+            const buildSectionHtml = (title, keysToList, dataObj) => {
+                let sectionContent = '';
+                keysToList.forEach(key => {
+                    if (dataObj.hasOwnProperty(key) && dataObj[key] !== undefined && dataObj[key] !== null) {
+                        const displayKey = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+                        const displayValue = getDisplayValue(key, dataObj[key], dataObj);
+                        sectionContent += `<li><strong>${displayKey}:</strong> ${displayValue}</li>`;
+                    }
+                });
+                return sectionContent ? `<h4>${title}:</h4><ul>${sectionContent}</ul>` : '';
+            };
+
+            const generalInfoKeys = ['originalFileName', 'contentType', 'size', 'status'];
+            html += buildSectionHtml('General Info', generalInfoKeys, dataObject);
+
+            const uploadAccessKeys = ['uploadInitiatedTimestamp', 'gcsUploadCompleteTimestamp', 'gcsPath', 'firebaseStorageDownloadUrl', 'gcsPublicUrlForTwelveLabs'];
+            html += buildSectionHtml('Upload & Access Info', uploadAccessKeys, dataObject);
+            
+            const processingDetailsKeys = ['twelveLabsIndexId', 'twelveLabsVideoId', 'processingStatusLastUpdated', 'errorMessage'];
+            const uniqueProcessingKeys = processingDetailsKeys.filter(k => !generalInfoKeys.includes(k) && !uploadAccessKeys.includes(k));
+            if (uniqueProcessingKeys.some(k => dataObject.hasOwnProperty(k) && dataObject[k] !== null && dataObject[k] !== undefined && String(dataObject[k]).trim() !== '')) {
+                 html += buildSectionHtml('Processing Details', uniqueProcessingKeys, dataObject);
+            }
+
+            if (dataObject.highlights_goals && Array.isArray(dataObject.highlights_goals) && dataObject.highlights_goals.length > 0) {
+                html += `<h4>Highlights (Goals):</h4><div style="display: flex; flex-wrap: wrap; gap: 12px;">`;
+                dataObject.highlights_goals.forEach((goal, index) => { // Direct access for highlights
+                    if (goal && typeof goal === 'object') {
+                        const start = goal.start;
+                        const thumb = goal.thumbnail_url;
+                        const transcription = goal.transcription || '';
+                        if (typeof thumb === 'string' && thumb.trim() !== '' && typeof start === 'number' && !isNaN(start)) {
+                            html += `<div style="width:140px; cursor:pointer;" onclick="if(document.getElementById('modalVideoPlayer')) { document.getElementById('modalVideoPlayer').currentTime = ${start}; document.getElementById('modalVideoPlayer').play(); }">
+                                <img src="${thumb}" style="width:100%; border-radius:4px; border:1px solid #444;" alt="Highlight ${index + 1} thumbnail"/>
+                                <p style="font-size: 0.75em; margin-top: 4px; color: #ccc; word-wrap: break-word;">${transcription.slice(0, 60)}${transcription.length > 60 ? '...' : ''}</p>
+                            </div>`;
+                        }
+                    }
+                });
+                html += `</div>`;
+            }
+            return html;
+        }
+
+        function showMediaDetails(docId, data) {
             // Handle video player
             if (data.contentType?.startsWith('video/') && data.gcsPublicUrlForTwelveLabs) {
                 modalVideoPlayerContainer.style.display = 'block';
@@ -499,91 +606,110 @@
                 modalVideoPlayer.src = '';
             }
 
-            let html = '';
+            let currentFilename = data.originalFileName || "Media Details";
 
-            // Helper to get the display value for a given key, handling special cases
-            const getDisplayValue = (key, value, fullData) => {
-                if (value === null || value === undefined) return 'N/A';
+            function renderTitleDisplayMode() {
+                modalTitleElement.innerHTML = ''; // Clear previous content from h3
+                const titleTextSpan = document.createElement('span');
+                titleTextSpan.className = 'modal-title-text-span';
+                titleTextSpan.textContent = currentFilename;
 
-                if (key === 'size' && typeof value === 'number') {
-                    return formatBytes(value); // Use the helper function here
-                }
-                if ((key === 'firebaseStorageDownloadUrl' || key === 'gcsPublicUrlForTwelveLabs') && typeof value === 'string' && value.startsWith('http')) {
-                    const suggestedFilename = fullData.originalFileName || 'downloaded_file'; // Suggest original filename for download
-                    return `<a href="${value}" download="${suggestedFilename}" target="_blank" rel="noopener noreferrer" class="modal-download-button">Download</a>`;
-                }
-                if (key.includes('Timestamp') && value && typeof value.seconds === 'number') {
-                    return new Date(value.seconds * 1000).toLocaleString();
-                }
-                // For other types, you might want specific formatting, but default is fine for now
-                return value;
-            };
+                const editButton = document.createElement('button');
+                editButton.innerHTML = '✎ <span style="font-size:0.8em; vertical-align:middle;">Edit</span>';
+                editButton.className = 'modal-title-edit-button';
+                editButton.title = 'Edit name';
+                
+                editButton.onclick = () => {
+                    renderTitleEditMode();
+                };
 
-            // Helper to build an HTML list section
-            const buildSectionHtml = (title, keysToList, dataObject) => {
-                let sectionContent = '';
-                keysToList.forEach(key => {
-                    if (dataObject.hasOwnProperty(key) && dataObject[key] !== undefined && dataObject[key] !== null) {
-                        const displayKey = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()); // Prettify key
-                        const displayValue = getDisplayValue(key, dataObject[key], dataObject);
-                        sectionContent += `<li><strong>${displayKey}:</strong> ${displayValue}</li>`;
-                    }
-                });
-                return sectionContent ? `<h4>${title}:</h4><ul>${sectionContent}</ul>` : '';
-            };
-
-            // Define which keys go into which section
-            const generalInfoKeys = ['originalFileName', 'contentType', 'size', 'status'];
-            html += buildSectionHtml('General Info', generalInfoKeys, data);
-
-            const uploadAccessKeys = [
-                'uploadInitiatedTimestamp', 'gcsUploadCompleteTimestamp',
-                'gcsPath', 'firebaseStorageDownloadUrl', 'gcsPublicUrlForTwelveLabs'
-            ];
-            html += buildSectionHtml('Upload & Access Info', uploadAccessKeys, data);
-            
-            // You can add more sections for other groups of keys if needed
-            // e.g., 'twelveLabsIndexId', 'twelveLabsVideoId', 'processingStatusLastUpdated', etc.
-            const processingDetailsKeys = ['twelveLabsIndexId', 'twelveLabsVideoId', 'processingStatusLastUpdated', 'errorMessage'];
-            const uniqueProcessingKeys = processingDetailsKeys.filter(k => !generalInfoKeys.includes(k) && !uploadAccessKeys.includes(k));
-            html += buildSectionHtml('Processing Details', uniqueProcessingKeys, data);
-
-
-            // Highlights section (using the corrected logic from previous step)
-            if (data.highlights_goals && Array.isArray(data.highlights_goals) && data.highlights_goals.length > 0) {
-                html += `<h4>Highlights (Goals):</h4><div style="display: flex; flex-wrap: wrap; gap: 12px;">`;
-                data.highlights_goals.forEach((goal, index) => {
-                    if (goal && typeof goal === 'object') {
-                        const start = goal.start;
-                        const thumb = goal.thumbnail_url;
-                        const transcription = goal.transcription || '';
-
-                        if (typeof thumb === 'string' && thumb.trim() !== '' && typeof start === 'number' && !isNaN(start)) {
-                            html += `
-                                <div style="width:140px; cursor:pointer;" onclick="if(document.getElementById('modalVideoPlayer')) { document.getElementById('modalVideoPlayer').currentTime = ${start}; document.getElementById('modalVideoPlayer').play(); }">
-                                    <img src="${thumb}" style="width:100%; border-radius:4px; border:1px solid #444;" alt="Highlight ${index + 1} thumbnail"/>
-                                    <p style="font-size: 0.75em; margin-top: 4px; color: #ccc; word-wrap: break-word;">${transcription.slice(0, 60)}${transcription.length > 60 ? '...' : ''}</p>
-                                </div>`;
-                        } else {
-                            // console.warn("Skipping highlight item due to missing/invalid 'thumbnail_url' or 'start'. Goal data:", goal);
-                        }
-                    } else {
-                        // console.warn("Skipping highlight item because it's not a valid object:", goal);
-                    }
-                });
-                html += `</div>`;
+                modalTitleElement.appendChild(titleTextSpan);
+                modalTitleElement.appendChild(editButton);
             }
 
-            // Fallback to show all raw metadata
-            html += `<h4>All Metadata (Raw):</h4><pre>${JSON.stringify(data, (key, value) => {
-                // Custom replacer for Firestore Timestamps for better readability
-                if (value && typeof value.seconds === 'number' && typeof value.nanoseconds === 'number') {
+            function renderTitleEditMode() {
+                modalTitleElement.innerHTML = ''; // Clear previous content from h3
+                const titleInput = document.createElement('input');
+                titleInput.type = 'text';
+                titleInput.value = currentFilename;
+                titleInput.className = 'modal-title-input-field';
+
+                const saveButton = document.createElement('button');
+                saveButton.textContent = 'Save';
+                saveButton.className = 'modal-action-button';
+
+                const cancelButton = document.createElement('button');
+                cancelButton.textContent = 'Cancel';
+                cancelButton.className = 'modal-action-button cancel';
+
+                modalTitleElement.appendChild(titleInput);
+                modalTitleElement.appendChild(saveButton);
+                modalTitleElement.appendChild(cancelButton);
+                titleInput.focus();
+                titleInput.select();
+
+                saveButton.onclick = async () => {
+                    const newName = titleInput.value.trim();
+                    if (!newName) {
+                        alert("Filename cannot be empty.");
+                        titleInput.focus();
+                        return;
+                    }
+                    if (newName === currentFilename) {
+                        renderTitleDisplayMode();
+                        return;
+                    }
+
+                    saveButton.disabled = true; saveButton.textContent = 'Saving...';
+                    cancelButton.disabled = true;
+
+                    try {
+                        const docRef = doc(db, "mediaProcessingQueue", docId);
+                        await updateDoc(docRef, {
+                            originalFileName: newName
+                        });
+
+                        currentFilename = newName;
+                        data.originalFileName = newName; // Update the live data object
+
+                        const dbListItem = document.getElementById(`dbItem-${docId}`);
+                        if (dbListItem) {
+                            const nameElement = dbListItem.querySelector('.db-item-info strong');
+                            if (nameElement) nameElement.textContent = newName;
+                        }
+                        
+                        renderTitleDisplayMode();
+                        modalStructuredMetadataContainer.innerHTML = buildStructuredMetadataHtml(data);
+                        modalRawMetadataJsonPre.textContent = JSON.stringify(data, (key, value) => {
+                            if (value && typeof value.seconds === 'number' && typeof value.nanoseconds === 'number') {
+                                return new Date(value.seconds * 1000 + value.nanoseconds / 1000000).toISOString();
+                            }
+                            return value;
+                        }, 2);
+
+                    } catch (error) {
+                        console.error("Error updating document name:", error);
+                        alert("Failed to update name: " + error.message);
+                        saveButton.disabled = false; saveButton.textContent = 'Save';
+                        cancelButton.disabled = false;
+                        titleInput.focus();
+                    }
+                };
+
+                cancelButton.onclick = () => {
+                    renderTitleDisplayMode();
+                };
+            }
+
+            renderTitleDisplayMode();
+            modalStructuredMetadataContainer.innerHTML = buildStructuredMetadataHtml(data);
+            modalRawMetadataJsonPre.textContent = JSON.stringify(data, (key, value) => {
+                 if (value && typeof value.seconds === 'number' && typeof value.nanoseconds === 'number') {
                     return new Date(value.seconds * 1000 + value.nanoseconds / 1000000).toISOString();
                 }
                 return value;
-            }, 2)}</pre>`;
+            }, 2);
 
-            modalMetadata.innerHTML = html;
             mediaModal.style.display = "flex";
         }
     </script>
