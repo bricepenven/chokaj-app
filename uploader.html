@@ -5,63 +5,64 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Media Hub</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: #1e1e1e; color: #e0e0e0; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; padding: 20px; box-sizing: border-box; }
-        .container { background-color: #2d2d2d; padding: 20px 25px; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.3); width: 100%; max-width: 850px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: #1a1a1a; color: #e0e0e0; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; padding: 20px; box-sizing: border-box; }
+        .container { background-color: #2c2c2c; padding: 20px 25px; border-radius: 12px; box-shadow: 0 8px 30px rgba(0,0,0,0.5); width: 100%; max-width: 900px; }
         
-        .tab-buttons { display: flex; border-bottom: 1px solid #444; margin-bottom: 20px; }
-        .tab-button { padding: 10px 20px; cursor: pointer; background-color: transparent; border: none; color: #aaa; font-size: 1.1em; border-bottom: 3px solid transparent; margin-right: 10px;}
-        .tab-button.active { color: #007bff; border-bottom: 3px solid #007bff; font-weight: bold;}
-        .tab-content { display: none; animation: fadeIn 0.5s; }
+        .tab-buttons { display: flex; border-bottom: 1px solid #4a4a4a; margin-bottom: 25px; }
+        .tab-button { padding: 12px 22px; cursor: pointer; background-color: transparent; border: none; color: #b0b0b0; font-size: 1.1em; border-bottom: 3px solid transparent; margin-right: 10px; transition: color 0.2s, border-bottom-color 0.2s; }
+        .tab-button.active { color: #007bff; border-bottom: 3px solid #007bff; font-weight: 600;}
+        .tab-content { display: none; animation: fadeIn 0.4s ease-out; }
         .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        h1 { color: #ffffff; padding-bottom: 10px; margin-top: 0; font-size: 1.6em; text-align: left; }
-        h2 { color: #cccccc; margin-top: 20px; margin-bottom: 10px; font-size: 1.2em; }
+        h1 { color: #ffffff; padding-bottom: 15px; margin-top: 0; font-size: 1.7em; text-align: left; }
+        h2 { color: #dddddd; margin-top: 25px; margin-bottom: 12px; font-size: 1.25em; }
         
-        #fileInputLabel { display: inline-block; margin-bottom: 15px; padding: 10px 18px; background-color: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.95em; transition: background-color 0.2s; }
+        #fileInputLabel { display: inline-block; margin-bottom: 18px; padding: 10px 18px; background-color: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 1em; transition: background-color 0.2s; }
         #fileInputLabel:hover { background-color: #0056b3; }
         #fileInput { display: none; }
-        #fileListContainer { margin-bottom: 15px; padding: 0; background-color: #252525; border: 1px solid #383838; border-radius: 6px; min-height: 70px; max-height: 300px; overflow-y: auto; }
-        .file-list-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-bottom: 1px solid #383838; transition: background-color 0.2s; }
+        #fileListContainer { margin-bottom: 18px; padding: 0; background-color: #222222; border: 1px solid #404040; border-radius: 6px; min-height: 75px; max-height: 330px; overflow-y: auto; }
+        .file-list-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; border-bottom: 1px solid #3a3a3a; transition: background-color 0.2s; }
         .file-list-item:last-child { border-bottom: none; }
-        .file-list-item:hover { background-color: #333333; }
-        .file-preview-container { width: 70px; height: 50px; margin-right: 12px; display: flex; align-items: center; justify-content: center; background-color: #1c1c1c; border-radius: 4px; overflow: hidden; border: 1px solid #444; }
+        .file-list-item:hover { background-color: #303030; }
+        .file-preview-container { width: 80px; height: 55px; margin-right: 15px; display: flex; align-items: center; justify-content: center; background-color: #181818; border-radius: 4px; overflow: hidden; border: 1px solid #484848; }
         .file-preview { max-width: 100%; max-height: 100%; object-fit: contain; }
         .file-info-container { display: flex; align-items: center; flex-grow: 1; }
         .file-details { display: flex; flex-direction: column; }
-        .file-name { font-weight: 500; color: #fafafa; display: block; margin-bottom: 3px; word-break: break-all; font-size: 0.95em; }
-        .file-size, .status-message { font-size: 0.75em; color: #aaa; }
-        .status-container { display: flex; flex-direction: column; align-items: flex-end; min-width: 120px; text-align: right;}
-        .status-message { margin-bottom: 4px; font-size: 0.8em; }
-        .progress-bar-container { width: 100%; height: 4px; background-color: #444; border-radius: 2px; overflow: hidden; }
+        .file-name { font-weight: 500; color: #f5f5f5; display: block; margin-bottom: 4px; word-break: break-all; font-size: 0.9em; }
+        .file-size { font-size: 0.78em; color: #a0a0a0; }
+        .status-container { display: flex; flex-direction: column; align-items: flex-end; min-width: 140px; text-align: right;}
+        .status-message { margin-bottom: 5px; font-size: 0.8em; color: #b0b0b0; }
+        .progress-bar-container { width: 100%; height: 5px; background-color: #484848; border-radius: 2.5px; overflow: hidden; }
         .progress-bar { width: 0%; height: 100%; background-color: #007bff; transition: width 0.1s ease-in-out; }
-        .remove-button, .db-remove-button { padding: 6px 10px; background-color: #c82333; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8em; margin-left: 12px; transition: background-color 0.2s; }
-        .remove-button:hover, .db-remove-button:hover { background-color: #a21020; }
-        #processButton { display: block; width: 100%; padding: 12px 18px; background-color: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 1.05em; margin-top: 15px; transition: background-color 0.2s; }
-        #processButton:disabled { background-color: #555; color: #888; cursor: not-allowed; }
-        #processButton:hover:not(:disabled) { background-color: #1e7e34; }
-        .empty-list-placeholder { color: #777; text-align: center; padding: 20px; }
+        .remove-button, .db-remove-button { padding: 7px 12px; background-color: #d9534f; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8em; margin-left: 15px; transition: background-color 0.2s; }
+        .remove-button:hover, .db-remove-button:hover { background-color: #c9302c; }
+        #processButton { display: block; width: 100%; padding: 13px 20px; background-color: #5cb85c; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 1.1em; margin-top: 18px; transition: background-color 0.2s; }
+        #processButton:disabled { background-color: #444; color: #777; cursor: not-allowed; }
+        #processButton:hover:not(:disabled) { background-color: #449d44; }
+        .empty-list-placeholder { color: #888; text-align: center; padding: 25px; font-style: italic; }
 
-        #dbFileListContainer { max-height: 500px; overflow-y: auto; border: 1px solid #383838; border-radius: 6px; background-color: #252525;}
-        .db-item { padding: 10px 12px; border-bottom: 1px solid #383838; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap:15px; cursor:pointer;}
+        #dbFileListContainer { max-height: 550px; overflow-y: auto; border: 1px solid #404040; border-radius: 6px; background-color: #222222;}
+        .db-item { padding: 12px 15px; border-bottom: 1px solid #3a3a3a; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap:18px; cursor:pointer;}
         .db-item:last-child { border-bottom: none; }
-        .db-item:hover { background-color: #333; }
-        .db-item-preview { width: 90px; height: 60px; background-color: #1c1c1c; border-radius: 4px; display: flex; align-items: center; justify-content:center; overflow:hidden; border: 1px solid #444;}
+        .db-item:hover { background-color: #303030; }
+        .db-item-preview { width: 100px; height: 65px; background-color: #181818; border-radius: 4px; display: flex; align-items: center; justify-content:center; overflow:hidden; border: 1px solid #484848;}
         .db-item-preview video, .db-item-preview img {max-width:100%; max-height:100%; object-fit:contain;}
         .db-item-info { flex-grow: 1; }
-        .db-item-info strong { color: #fafafa; font-size: 0.95em;}
-        .db-item-info p { margin: 3px 0; font-size: 0.8em; color: #aaa; word-break: break-all;}
-        #refreshDbButton { margin-bottom: 15px; padding: 8px 15px; background-color: #6c757d; color:white; border:none; border-radius:4px; cursor:pointer; }
-        #refreshDbButton:hover { background-color: #5a6268; }
+        .db-item-info strong { color: #f5f5f5; font-size: 1em;}
+        .db-item-info p { margin: 4px 0; font-size: 0.85em; color: #a0a0a0; word-break: break-all;}
+        #refreshDbButton { margin-bottom: 18px; padding: 9px 16px; background-color: #5bc0de; color:white; border:none; border-radius:5px; cursor:pointer; transition: background-color 0.2s;}
+        #refreshDbButton:hover { background-color: #31b0d5; }
 
-        /* Modal for Video Player / Details */
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.7); justify-content: center; align-items: center; }
-        .modal-content { background-color: #333; margin: auto; padding: 20px; border: 1px solid #555; width: 80%; max-width: 700px; border-radius: 8px; position: relative; }
-        .modal-close { color: #aaa; float: right; font-size: 28px; font-weight: bold; position: absolute; top: 10px; right: 20px;}
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.85); justify-content: center; align-items: center; animation: fadeInModal 0.3s; }
+        .modal-content { background-color: #383838; margin: auto; padding: 25px; border: 1px solid #505050; width: 90%; max-width: 750px; border-radius: 10px; position: relative; box-shadow: 0 5px 20px rgba(0,0,0,0.4); }
+        .modal-close { color: #ccc; float: right; font-size: 30px; font-weight: bold; position: absolute; top: 10px; right: 20px;}
         .modal-close:hover, .modal-close:focus { color: #fff; text-decoration: none; cursor: pointer; }
-        .modal-content video { width: 100%; max-height: 70vh; border-radius: 4px; }
-        .modal-content h3 { margin-top:0; color: #fff; }
-        .modal-content pre { background-color: #252525; padding: 10px; border-radius: 4px; color: #ccc; max-height: 200px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word; }
+        .modal-content video { width: 100%; max-height: 75vh; border-radius: 6px; background-color: #000; }
+        .modal-content h3 { margin-top:0; color: #fff; border-bottom: 1px solid #555; padding-bottom: 10px; margin-bottom: 15px; }
+        .modal-content h4 { color: #ddd; margin-top: 20px; margin-bottom: 8px; }
+        .modal-content pre { background-color: #222222; padding: 12px; border-radius: 6px; color: #ccc; max-height: 250px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word; font-size: 0.9em; border: 1px solid #484848;}
+        @keyframes fadeInModal { from {opacity:0; transform: scale(0.95);} to {opacity:1; transform: scale(1);} }
     </style>
 </head>
 <body>
@@ -109,20 +110,19 @@
         import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject as deleteFileFromStorage } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js";
 
         const firebaseConfig = {
-            apiKey: "AIzaSyAU3qmsD15JX6iwjloTjCPDd-2SuG6oM8w",
-            authDomain: "chokaj-4dcae.firebaseapp.com",
-            projectId: "chokaj-4dcae",
-            storageBucket: "chokaj-4dcae.appspot.com",
-            messagingSenderId: "516228224797",
-            appId: "1:516228224797:web:6bdf08edb5962aad5633f4",
-            measurementId: "G-9QVCF19J2W"
-        };
+  apiKey: "AIzaSyAU3qmsD15JX6iwjloTjCPDd-2SuG6oM8w",
+  authDomain: "chokaj-4dcae.firebaseapp.com",
+  projectId: "chokaj-4dcae",
+  storageBucket: "chokaj-4dcae.firebasestorage.app",
+  messagingSenderId: "516228224797",
+  appId: "1:516228224797:web:6bdf08edb5962aad5633f4",
+  measurementId: "G-9QVCF19J2W"
+};
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const storage = getStorage(app);
 
-        // --- Tab Switching Logic ---
         const tabButtons = document.querySelectorAll('.tab-button');
         const tabContents = document.querySelectorAll('.tab-content');
         const mediaModal = document.getElementById('mediaModal');
@@ -149,14 +149,19 @@
             });
         });
 
-        modalCloseButton.onclick = () => mediaModal.style.display = "none";
+        modalCloseButton.onclick = () => {
+            modalVideoPlayer.pause();
+            modalVideoPlayer.src = ''; // Clear src to stop video download/buffering
+            mediaModal.style.display = "none";
+        }
         window.onclick = (event) => {
             if (event.target == mediaModal) {
+                modalVideoPlayer.pause();
+                modalVideoPlayer.src = '';
                 mediaModal.style.display = "none";
             }
         }
 
-        // --- Uploader Tab Logic (from previous) ---
         const fileInput = document.getElementById('fileInput');
         const fileListContainer = document.getElementById('fileListContainer');
         const processButton = document.getElementById('processButton');
@@ -183,8 +188,6 @@
         }
 
         function renderFilePreview(fileEntry) {
-            // ... (renderFilePreview code remains largely the same as the last complete version I sent) ...
-            // Ensure it creates the structure expected and stores references in fileEntry
             const { id, file } = fileEntry;
             const fileItemDiv = document.createElement('div');
             fileItemDiv.classList.add('file-list-item');
@@ -255,8 +258,6 @@
         }
 
         async function handleProcessFiles() {
-            // ... (handleProcessFiles code remains largely the same as the last complete version I sent) ...
-            // Ensure it correctly calls revokePreviewUrl on success/error/outer catch
             if (filesToUpload.length === 0) { alert("Please select files to upload."); return; }
             processButton.disabled = true;
             processButton.textContent = "Processing Initiated...";
@@ -276,8 +277,9 @@
 
                 try {
                     statusElement.textContent = 'Creating DB entry...';
-                    const safeDocId = gcsFileName.replace(/\//g, '__');
+                    const safeDocId = gcsFileName.replace(/\//g, '__'); // Firestore IDs cannot contain '/'
                     const fileDocRef = doc(db, "mediaProcessingQueue", safeDocId); 
+                    
                     await setDoc(fileDocRef, {
                         originalFileName: originalFilename, gcsBucket: firebaseConfig.storageBucket,
                         gcsPath: gcsFileName, status: "uploading_to_gcs",
@@ -286,7 +288,7 @@
                     });
 
                     statusElement.textContent = 'Uploading...';
-                    const storageRef = ref(storage, gcsFileName);
+                    const storageRef = ref(storage, gcsFileName); // Points to firebaseConfig.storageBucket
                     const uploadTask = uploadBytesResumable(storageRef, file);
 
                     uploadTask.on('state_changed',
@@ -306,14 +308,13 @@
                             statusElement.textContent = 'Upload Complete! Awaiting n8n...'; statusElement.style.color = '#2ecc71';
                             progressBarElement.style.width = '100%';
                             revokePreviewUrl();
-                            const gcsPublicUrl = `https://storage.googleapis.com/${firebaseConfig.storageBucket}/${gcsFileName}`;
+                            const gcsPublicUrl = `https://storage.googleapis.com/${firebaseConfig.storageBucket}/${gcsFileName}`; // URL n8n will use
                             await setDoc(fileDocRef, { 
                                 status: "uploaded_to_gcs_pending_twelvelabs", gcsPublicUrlForTwelveLabs: gcsPublicUrl, 
                                 firebaseStorageDownloadUrl: firebaseStorageDownloadURL, gcsUploadCompleteTimestamp: serverTimestamp()
                             }, { merge: true });
-                            // After successful upload, refresh the database view if it's active
                             if (document.getElementById('databaseTab').classList.contains('active')) {
-                                loadDatabaseEntries();
+                                loadDatabaseEntries(); // Refresh DB view if it's active
                             }
                         }
                     );
@@ -326,8 +327,6 @@
             processButton.textContent = "Process Selected Files"; 
         }
 
-
-        // --- Database Tab Logic (Enhanced) ---
         const dbFileListContainer = document.getElementById('dbFileListContainer');
         const refreshDbButton = document.getElementById('refreshDbButton');
 
@@ -336,7 +335,7 @@
         async function loadDatabaseEntries() {
             dbFileListContainer.innerHTML = '<p class="empty-list-placeholder">Loading entries...</p>';
             try {
-                const q = query(collection(db, "mediaProcessingQueue"), orderBy("uploadInitiatedTimestamp", "desc"), limit(50));
+                const q = query(collection(db, "mediaProcessingQueue"), orderBy("uploadInitiatedTimestamp", "desc"), limit(25)); // Limit results
                 const querySnapshot = await getDocs(q);
                 if (querySnapshot.empty) {
                     dbFileListContainer.innerHTML = '<p class="empty-list-placeholder">No media entries found.</p>';
@@ -356,20 +355,21 @@
             const itemDiv = document.createElement('div');
             itemDiv.classList.add('db-item');
             itemDiv.id = `db-${docId}`;
-            itemDiv.onclick = () => showMediaDetails(data); // Show details on click
-
+            
             const previewDiv = document.createElement('div');
             previewDiv.classList.add('db-item-preview');
+            previewDiv.onclick = () => showMediaDetails(data); // Make preview clickable too
+
             if (data.gcsPublicUrlForTwelveLabs && data.contentType) {
                 if (data.contentType.startsWith('image/')) {
                     const img = document.createElement('img');
-                    img.src = data.gcsPublicUrlForTwelveLabs;
+                    img.src = data.gcsPublicUrlForTwelveLabs; // Assumes public GCS URL for preview
                     previewDiv.appendChild(img);
                 } else if (data.contentType.startsWith('video/')) {
                     const vid = document.createElement('video');
-                    vid.src = data.gcsPublicUrlForTwelveLabs;
+                    vid.src = data.gcsPublicUrlForTwelveLabs; // Assumes public GCS URL for preview
                     vid.muted = true; 
-                    vid.onloadedmetadata = () => { if (vid.duration > 1) vid.currentTime = 1; }; // Show a frame
+                    vid.onloadedmetadata = () => { if (vid.duration > 1) vid.currentTime = 1; };
                     previewDiv.appendChild(vid);
                 } else {
                      previewDiv.textContent = data.contentType.split('/')[0] || 'File';
@@ -381,75 +381,71 @@
 
             const infoDiv = document.createElement('div');
             infoDiv.classList.add('db-item-info');
+            infoDiv.onclick = () => showMediaDetails(data); // Make info clickable
             infoDiv.innerHTML = `
                 <p><strong>${data.originalFileName || 'N/A'}</strong></p>
                 <p style="font-size:0.75em;">GCS: ${data.gcsPath || 'N/A'}</p>
-                <p>Status: ${data.status || 'N/A'}</p>
+                <p>Status: <span style="font-weight:bold; color:${getStatusColor(data.status)}">${data.status || 'N/A'}</span></p>
                 <p style="font-size:0.75em;">Uploaded: ${data.uploadInitiatedTimestamp ? new Date(data.uploadInitiatedTimestamp.seconds * 1000).toLocaleDateString() : 'N/A'}</p>
             `;
             itemDiv.appendChild(infoDiv);
 
             const removeDbButton = document.createElement('button');
             removeDbButton.classList.add('db-remove-button');
-            removeDbButton.textContent = 'Remove';
+            removeDbButton.textContent = 'Delete';
             removeDbButton.onclick = async (event) => {
-                event.stopPropagation(); // Prevent click from bubbling to itemDiv and opening modal
-                if (confirm(`Are you sure you want to remove '${data.originalFileName}' from the database? This will also attempt to delete it from GCS.`)) {
+                event.stopPropagation(); 
+                if (confirm(`Are you sure you want to remove '${data.originalFileName}'? This will delete the database entry and the file from Cloud Storage.`)) {
                     try {
-                        // Ensure docId is a non-empty string
-                        if (typeof docId !== 'string' || docId.trim() === '') {
-                            console.error('Invalid document ID for deletion. Aborting.', { docId });
-                            throw new Error('Invalid document ID for deletion.');
-                        }
-                        console.log(`Attempting to delete Firestore document: mediaProcessingQueue/${docId}`);
+                        statusMessageSpan.textContent = 'Deleting...'; // Assuming statusMessageSpan is defined or find a way to show status
                         await deleteDoc(doc(db, "mediaProcessingQueue", docId));
-                        console.log(`Document ${docId} successfully deleted from Firestore.`);
-
-                        // Attempt to delete from GCS (Firebase Storage)
-                        // Ensure gcsPath is a non-empty string
-                        if (data.gcsPath && typeof data.gcsPath === 'string' && data.gcsPath.trim() !== '') {
-                            console.log(`Attempting to delete GCS file: ${data.gcsPath}`);
-                            const storageRefInstance = ref(storage, data.gcsPath);
-                            await deleteFileFromStorage(storageRefInstance);
-                            console.log(`File ${data.gcsPath} successfully deleted from GCS.`);
-                        } else {
-                            console.log(`GCS path for document ${docId} is missing, empty, or not a string. Skipping GCS deletion. Path provided: '${data.gcsPath}'`);
+                        if (data.gcsPath) {
+                            const storageFileRef = ref(storage, data.gcsPath);
+                            await deleteFileFromStorage(storageFileRef);
                         }
-                        
-                        itemDiv.remove(); // Remove from UI
+                        itemDiv.remove(); 
                         if (dbFileListContainer.children.length === 0) {
                              dbFileListContainer.innerHTML = '<p class="empty-list-placeholder">No media entries found.</p>';
                         }
-                        console.log(`Successfully removed entry associated with docId ${docId} from UI.`);
                     } catch (err) {
-                        console.error(`Error removing entry for docId '${docId}' (Original Filename: '${data.originalFileName || 'N/A'}'):`, err);
-                        alert(`Failed to remove entry '${data.originalFileName || docId}': ${err.message || 'Unknown error. Check console.'}`);
+                        console.error("Error removing entry:", err);
+                        alert(`Failed to remove entry: ${err.message}`);
+                        // statusMessageSpan.textContent = 'Delete Failed'; // Update status if applicable
                     }
                 }
             };
             itemDiv.appendChild(removeDbButton);
             dbFileListContainer.appendChild(itemDiv);
         }
+        
+        function getStatusColor(status) {
+            if (!status) return '#bbb';
+            if (status.includes('failed')) return '#e74c3c';
+            if (status.includes('complete') || status.includes('pending_twelvelabs')) return '#2ecc71';
+            if (status.includes('uploading')) return '#3498db';
+            return '#bbb';
+        }
 
         function showMediaDetails(data) {
             modalTitle.textContent = data.originalFileName || "Media Details";
             if (data.contentType && data.contentType.startsWith('video/') && data.gcsPublicUrlForTwelveLabs) {
                 modalVideoPlayerContainer.style.display = 'block';
-                modalVideoPlayer.src = data.gcsPublicUrlForTwelveLabs;
-                modalVideoPlayer.load(); //  Preload the video
+                modalVideoPlayer.src = data.gcsPublicUrlForTwelveLabs; // Assumes public GCS URL
+                modalVideoPlayer.load();
             } else {
                 modalVideoPlayerContainer.style.display = 'none';
-                modalVideoPlayer.src = ''; // Clear previous video
+                modalVideoPlayer.src = '';
             }
-            modalMetadata.textContent = JSON.stringify(data, null, 2); // Pretty print all data
+            // Format timestamps if they exist
+            const displayData = { ...data };
+            for (const key in displayData) {
+                if (displayData[key] && typeof displayData[key] === 'object' && displayData[key].hasOwnProperty('seconds')) {
+                    displayData[key] = new Date(displayData[key].seconds * 1000).toLocaleString();
+                }
+            }
+            modalMetadata.textContent = JSON.stringify(displayData, null, 2);
             mediaModal.style.display = "flex";
         }
-
-        // Initial load for the active tab (if it's databaseTab)
-        // Or if you want to default to database view, make it active by default in HTML
-        // and call loadDatabaseEntries() here.
-        // For now, it loads when the "View Database" tab is clicked.
-
     </script>
 </body>
 </html>
