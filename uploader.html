@@ -396,23 +396,34 @@
                 event.stopPropagation(); // Prevent click from bubbling to itemDiv and opening modal
                 if (confirm(`Are you sure you want to remove '${data.originalFileName}' from the database? This will also attempt to delete it from GCS.`)) {
                     try {
-                        // Delete Firestore document
+                        // Ensure docId is a non-empty string
+                        if (typeof docId !== 'string' || docId.trim() === '') {
+                            console.error('Invalid document ID for deletion. Aborting.', { docId });
+                            throw new Error('Invalid document ID for deletion.');
+                        }
+                        console.log(`Attempting to delete Firestore document: mediaProcessingQueue/${docId}`);
                         await deleteDoc(doc(db, "mediaProcessingQueue", docId));
-                        console.log(`Document ${docId} deleted from Firestore.`);
+                        console.log(`Document ${docId} successfully deleted from Firestore.`);
 
                         // Attempt to delete from GCS (Firebase Storage)
-                        if (data.gcsPath) {
-                            const storageRef = ref(storage, data.gcsPath);
-                            await deleteFileFromStorage(storageRef);
-                            console.log(`File ${data.gcsPath} deleted from GCS.`);
+                        // Ensure gcsPath is a non-empty string
+                        if (data.gcsPath && typeof data.gcsPath === 'string' && data.gcsPath.trim() !== '') {
+                            console.log(`Attempting to delete GCS file: ${data.gcsPath}`);
+                            const storageRefInstance = ref(storage, data.gcsPath);
+                            await deleteFileFromStorage(storageRefInstance);
+                            console.log(`File ${data.gcsPath} successfully deleted from GCS.`);
+                        } else {
+                            console.log(`GCS path for document ${docId} is missing, empty, or not a string. Skipping GCS deletion. Path provided: '${data.gcsPath}'`);
                         }
+                        
                         itemDiv.remove(); // Remove from UI
                         if (dbFileListContainer.children.length === 0) {
                              dbFileListContainer.innerHTML = '<p class="empty-list-placeholder">No media entries found.</p>';
                         }
+                        console.log(`Successfully removed entry associated with docId ${docId} from UI.`);
                     } catch (err) {
-                        console.error("Error removing entry:", err);
-                        alert(`Failed to remove entry: ${err.message}`);
+                        console.error(`Error removing entry for docId '${docId}' (Original Filename: '${data.originalFileName || 'N/A'}'):`, err);
+                        alert(`Failed to remove entry '${data.originalFileName || docId}': ${err.message || 'Unknown error. Check console.'}`);
                     }
                 }
             };
