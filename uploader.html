@@ -54,15 +54,16 @@
         import { getFirestore, collection, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
         import { getStorage, ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyAU3qmsD15JX6iwjloTjCPDd-2SuG6oM8w",
-            authDomain: "chokaj-4dcae.firebaseapp.com",
-            projectId: "chokaj-4dcae",
-            storageBucket: "chokaj-4dcae.appspot.com",
-            messagingSenderId: "516228224797",
-            appId: "1:516228224797:web:6bdf08edb5962aad5633f4",
-            measurementId: "G-9QVCF19J2W"
-        };
+// YOUR WEB APP'S FIREBASE CONFIGURATION
+const firebaseConfig = {
+    apiKey: "AIzaSyAU3qmsD15JX6iwjloTjCPDd-2SuG6oM8w",
+    authDomain: "chokaj-4dcae.firebaseapp.com",
+    projectId: "chokaj-4dcae",
+    storageBucket: "chokaj-4dcae.firebasestorage.app", // <<<< MAKE SURE THIS IS THE VALUE
+    messagingSenderId: "516228224797",
+    appId: "1:516228224797:web:6bdf08edb5962aad5633f4",
+    measurementId: "G-9QVCF19J2W"
+};
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
