@@ -63,6 +63,38 @@
         .modal-content h4 { color: #ddd; margin-top: 20px; margin-bottom: 8px; }
         .modal-content pre { background-color: #222222; padding: 12px; border-radius: 6px; color: #ccc; max-height: 250px; overflow-y: auto; white-space: pre-wrap; word-wrap: break-word; font-size: 0.9em; border: 1px solid #484848;}
         @keyframes fadeInModal { from {opacity:0; transform: scale(0.95);} to {opacity:1; transform: scale(1);} }
+                /* ... existing styles ... */
+
+                .modal-download-button {
+            display: inline-block;
+            padding: 6px 12px;
+            background-color: #007bff;
+            color: white !important; /* !important to override potential <a> styling */
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 0.85em;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .modal-download-button:hover {
+            background-color: #0056b3;
+            text-decoration: none;
+        }
+        .modal-content ul { /* Add some styling for the lists in the modal */
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .modal-content ul li {
+            padding: 6px 0;
+            border-bottom: 1px solid #4a4a4a;
+        }
+        .modal-content ul li:last-child {
+            border-bottom: none;
+        }
+        .modal-content ul li strong {
+            color: #e0e0e0;
+        }
     </style>
 </head>
 <body>
@@ -108,7 +140,15 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
         import { getFirestore, collection, doc, setDoc, serverTimestamp, getDocs, query, orderBy, limit, deleteDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
         import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject as deleteFileFromStorage } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js";
-
+        // Helper function to format bytes
+        function formatBytes(bytes, decimals = 2) {
+            if (!+bytes || bytes === 0) return '0 Bytes'; // Handles 0, null, undefined, or non-numeric
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+        }
         // YOUR WEB APP'S FIREBASE CONFIGURATION - ENSURE THIS IS CORRECT
         const firebaseConfig = {
             apiKey: "AIzaSyAU3qmsD15JX6iwjloTjCPDd-2SuG6oM8w",
@@ -449,50 +489,75 @@
         function showMediaDetails(data) {
             modalTitle.textContent = data.originalFileName || "Media Details";
 
-            // Handle video
+            // Handle video player
             if (data.contentType?.startsWith('video/') && data.gcsPublicUrlForTwelveLabs) {
                 modalVideoPlayerContainer.style.display = 'block';
                 modalVideoPlayer.src = data.gcsPublicUrlForTwelveLabs;
-                modalVideoPlayer.load(); // Good practice to call load() after changing src
+                modalVideoPlayer.load();
             } else {
                 modalVideoPlayerContainer.style.display = 'none';
-                modalVideoPlayer.src = ''; // Clear src if no video
+                modalVideoPlayer.src = '';
             }
 
-            // Create metadata sections
-            let html = `<h4>General Info:</h4><ul>`;
-            // Displaying key-value pairs more robustly
-            const generalInfoKeys = ['originalFileName', 'contentType', 'size', 'status'];
-            generalInfoKeys.forEach(key => {
-                if (data[key] !== undefined && data[key] !== null) {
-                     html += `<li><strong>${key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}:</strong> ${data[key]}</li>`;
-                }
-            });
-            html += `</ul><h4>Upload Info:</h4><ul>`;
-            const uploadInfoKeys = ['uploadInitiatedTimestamp', 'gcsUploadCompleteTimestamp', 'gcsPath', 'firebaseStorageDownloadUrl', 'gcsPublicUrlForTwelveLabs'];
-            uploadInfoKeys.forEach(key => {
-                if (data[key] !== undefined && data[key] !== null) {
-                    let value = data[key];
-                    if (key.includes('Timestamp') && value && typeof value.seconds === 'number') {
-                        value = new Date(value.seconds * 1000).toLocaleString();
-                    }
-                    html += `<li><strong>${key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}:</strong> ${value}</li>`;
-                }
-            });
-            html += `</ul>`;
+            let html = '';
 
-            // Highlights section - CORRECTED PART
+            // Helper to get the display value for a given key, handling special cases
+            const getDisplayValue = (key, value, fullData) => {
+                if (value === null || value === undefined) return 'N/A';
+
+                if (key === 'size' && typeof value === 'number') {
+                    return formatBytes(value); // Use the helper function here
+                }
+                if ((key === 'firebaseStorageDownloadUrl' || key === 'gcsPublicUrlForTwelveLabs') && typeof value === 'string' && value.startsWith('http')) {
+                    const suggestedFilename = fullData.originalFileName || 'downloaded_file'; // Suggest original filename for download
+                    return `<a href="${value}" download="${suggestedFilename}" target="_blank" rel="noopener noreferrer" class="modal-download-button">Download</a>`;
+                }
+                if (key.includes('Timestamp') && value && typeof value.seconds === 'number') {
+                    return new Date(value.seconds * 1000).toLocaleString();
+                }
+                // For other types, you might want specific formatting, but default is fine for now
+                return value;
+            };
+
+            // Helper to build an HTML list section
+            const buildSectionHtml = (title, keysToList, dataObject) => {
+                let sectionContent = '';
+                keysToList.forEach(key => {
+                    if (dataObject.hasOwnProperty(key) && dataObject[key] !== undefined && dataObject[key] !== null) {
+                        const displayKey = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()); // Prettify key
+                        const displayValue = getDisplayValue(key, dataObject[key], dataObject);
+                        sectionContent += `<li><strong>${displayKey}:</strong> ${displayValue}</li>`;
+                    }
+                });
+                return sectionContent ? `<h4>${title}:</h4><ul>${sectionContent}</ul>` : '';
+            };
+
+            // Define which keys go into which section
+            const generalInfoKeys = ['originalFileName', 'contentType', 'size', 'status'];
+            html += buildSectionHtml('General Info', generalInfoKeys, data);
+
+            const uploadAccessKeys = [
+                'uploadInitiatedTimestamp', 'gcsUploadCompleteTimestamp',
+                'gcsPath', 'firebaseStorageDownloadUrl', 'gcsPublicUrlForTwelveLabs'
+            ];
+            html += buildSectionHtml('Upload & Access Info', uploadAccessKeys, data);
+            
+            // You can add more sections for other groups of keys if needed
+            // e.g., 'twelveLabsIndexId', 'twelveLabsVideoId', 'processingStatusLastUpdated', etc.
+            const processingDetailsKeys = ['twelveLabsIndexId', 'twelveLabsVideoId', 'processingStatusLastUpdated', 'errorMessage'];
+            const uniqueProcessingKeys = processingDetailsKeys.filter(k => !generalInfoKeys.includes(k) && !uploadAccessKeys.includes(k));
+            html += buildSectionHtml('Processing Details', uniqueProcessingKeys, data);
+
+
+            // Highlights section (using the corrected logic from previous step)
             if (data.highlights_goals && Array.isArray(data.highlights_goals) && data.highlights_goals.length > 0) {
                 html += `<h4>Highlights (Goals):</h4><div style="display: flex; flex-wrap: wrap; gap: 12px;">`;
                 data.highlights_goals.forEach((goal, index) => {
-                    // Ensure 'goal' is a valid object
                     if (goal && typeof goal === 'object') {
-                        // Direct access to properties, assuming 'goal' is a plain JS object
-                        const start = goal.start; // e.g., 10.5 (number)
-                        const thumb = goal.thumbnail_url; // e.g., "http://..." (string)
-                        const transcription = goal.transcription || ''; // e.g., "Goal scored" (string)
+                        const start = goal.start;
+                        const thumb = goal.thumbnail_url;
+                        const transcription = goal.transcription || '';
 
-                        // Check if essential properties exist and have expected types
                         if (typeof thumb === 'string' && thumb.trim() !== '' && typeof start === 'number' && !isNaN(start)) {
                             html += `
                                 <div style="width:140px; cursor:pointer;" onclick="if(document.getElementById('modalVideoPlayer')) { document.getElementById('modalVideoPlayer').currentTime = ${start}; document.getElementById('modalVideoPlayer').play(); }">
@@ -500,14 +565,23 @@
                                     <p style="font-size: 0.75em; margin-top: 4px; color: #ccc; word-wrap: break-word;">${transcription.slice(0, 60)}${transcription.length > 60 ? '...' : ''}</p>
                                 </div>`;
                         } else {
-                            console.warn("Skipping highlight item due to missing/invalid 'thumbnail_url' or 'start'. Goal data:", goal);
+                            // console.warn("Skipping highlight item due to missing/invalid 'thumbnail_url' or 'start'. Goal data:", goal);
                         }
                     } else {
-                        console.warn("Skipping highlight item because it's not a valid object:", goal);
+                        // console.warn("Skipping highlight item because it's not a valid object:", goal);
                     }
                 });
                 html += `</div>`;
             }
+
+            // Fallback to show all raw metadata
+            html += `<h4>All Metadata (Raw):</h4><pre>${JSON.stringify(data, (key, value) => {
+                // Custom replacer for Firestore Timestamps for better readability
+                if (value && typeof value.seconds === 'number' && typeof value.nanoseconds === 'number') {
+                    return new Date(value.seconds * 1000 + value.nanoseconds / 1000000).toISOString();
+                }
+                return value;
+            }, 2)}</pre>`;
 
             modalMetadata.innerHTML = html;
             mediaModal.style.display = "flex";
